@@ -29,7 +29,7 @@
                 background: linear-gradient(#f8f8f8, #f2f2f2);
             }
 
-            button {
+            button, .button {
                 padding: 2px;
                 display: inline-block;
             }
@@ -106,6 +106,15 @@
                 display: flex;
                 justify-content: space-between;
             }
+
+            a.button {
+                -webkit-appearance: button;
+                -moz-appearance: button;
+                appearance: button;
+
+                text-decoration: none;
+                color: initial;
+            }
         </style>
         <div class="content">
             <div class="toolbar etched-border">
@@ -117,7 +126,7 @@
                 <button type="button" title="Save Library"><img src="icons/save.png"/></button>
                 <button type="button" title="Save Library As"><img src="icons/save-as.png"/></button>
                 <span class="spacer"></span>
-                <button type="button" title="Help"><img src="icons/help.png"/></button>
+                <a href="https://github.com/RobertBColton/ActionMaker/wiki" class="button" title="Help" target="_blank"><img src="icons/help.png"/></a>
             </div>
             <div class="center">
                 <div class="library-properties padded etched-border">
