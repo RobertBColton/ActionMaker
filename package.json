@@ -22,6 +22,7 @@
   "devDependencies": {
     "rollup": "^0.43.0",
     "rollup-plugin-vue": "^2.4.0",
+    "rollup-plugin-css-only": "0.2.0",
     "rollup-plugin-node-resolve": "3.0.0"
   }
 }

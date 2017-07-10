@@ -1,9 +1,10 @@
 import vue from 'rollup-plugin-vue';
 import resolve from 'rollup-plugin-node-resolve';
+import css from 'rollup-plugin-css-only';
 
 export default {
-  entry: 'lib/index.js',
-  dest: 'index.js',
+  entry: './lib/index.js',
+  dest: './bin/index.js',
   format: 'iife',
   moduleName: 'ActionMaker',
   sourceMap: false,
@@ -13,9 +14,8 @@ export default {
     vue: 'Vue'
   },
   plugins: [
-    resolve({
-        vue: true
-    }),
-    vue({compileTemplate: true})
+    vue({styleToImports: true}),
+    css({output: './bin/index.css'}),
+    resolve()
   ]
 }
