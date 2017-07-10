@@ -8,12 +8,13 @@ export default {
   moduleName: 'ActionMaker',
   sourceMap: false,
   useStrict: false,
+  intro: "process = { env: { NODE_ENV: window } };",
   globals: {
-    vue: 'vue'
+    vue: 'Vue'
   },
   plugins: [
     resolve({
-        vue: true,
+        vue: true
     }),
     vue({compileTemplate: true})
   ]
