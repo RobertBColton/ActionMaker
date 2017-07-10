@@ -151,8 +151,8 @@ export default {
         { name: 'Learn Vue' },
         { name: 'Build something awesome' }
       ],
-      loadLibrary: function (event) {
-        this.data.actions[0].name = "Heller";
+      loadLibrary: () => {
+        this.actions[0].name = "Heller";
       }
     };
   },
