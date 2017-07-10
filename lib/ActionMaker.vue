@@ -21,23 +21,23 @@
               <div>
                   <div class="flex-block">
                       <label>Caption:</label>
-                      <input type="text"/>
+                      <input type="text" v-bind:value="library.caption"/>
                   </div>
                   <div class="flex-block">
                       <label>Id:</label>
-                      <input type="text"/>
+                      <input type="text" v-bind:value="library.id"/>
                   </div>
               </div>
               <div class="toolbar toolbar-centered padded">
                   <button type="button" title="Information"><img src="icons/info.png"/></button>
                   <button type="button" title="Initialization Code"><img src="icons/script.png"/></button>
-                  <button type="button" title="Random Id"><img src="icons/tag.png"/></button>
-                  <label><input type="checkbox">Advanced</label>
+                  <button type="button" title="Random Id" v-on:click="createId"><img src="icons/tag.png"/></button>
+                  <label><input type="checkbox" v-bind:checked="library.advanced">Advanced</label>
               </div>
               <select
                       name="action-list"
                       size="20">
-                  <option v-for="action in actions" value="Move2">{{action.name}}</option>
+                  <option v-for="action in library.actions" value="Move2">{{action.name}}</option>
               </select>
               <div class="toolbar toolbar-centered padded">
                   <button type="button" title="Add"><img src="icons/add.png"/></button>
@@ -145,14 +145,33 @@
 <script>
 export default {
   data () {
+    function randomId() {
+      return Math.floor(Math.random() * 999000) + 1000;
+    };
+
     return {
-      actions: [
-        { name: 'Learn JavaScript' },
-        { name: 'Learn Vue' },
-        { name: 'Build something awesome' }
-      ],
+      library: {
+        caption: '',
+        id: randomId(),
+        initializationCode: '',
+        advanced: false,
+        author: '',
+        version: 100,
+        lastChanged: '',
+        information: '',
+        actions: [
+          { name: 'Learn JavaScript' },
+          { name: 'Learn Vue' },
+          { name: 'Build something awesome' }
+        ]
+      },
+
       loadLibrary: () => {
-        this.actions[0].name = "Heller";
+        this.library.actions[0].name = "Heller";
+      },
+
+      createId: () => {
+        this.library.id = randomId();
       }
     };
   },
