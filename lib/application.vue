@@ -37,7 +37,7 @@
               <select
                       name="action-list"
                       size="20">
-                  <option v-for="action in library.actions" value="Move2">{{action.name}}</option>
+                  <option v-for="action in library.actions" value="Move2"><img v-bind:src="action.image"/> {{action.name}}</option>
               </select>
               <div class="toolbar toolbar-centered padded">
                   <button type="button" title="Add" v-on:click="addAction"><img src="icons/add.png"/></button>
@@ -161,11 +161,7 @@ export default {
             version: 100,
             lastChanged: '',
             information: '',
-            actions: [
-            { name: 'Learn JavaScript' },
-            { name: 'Learn Vue' },
-            { name: 'Build something awesome' }
-            ]
+            actions: [ ]
         };
         return library;
     };
@@ -185,14 +181,16 @@ export default {
       librarySelected: (evt) => {
         var files = evt.target.files;
 
-        var library = Reader.deserialize(files[0]);
-        if (library) this.library = library;
+        Reader.deserialize(files[0], (library) => {
+            this.library = library;
+        });
       },
 
       addAction: () => {
         this.library.actions.push({
             name: "Action " + this.library.actions.length,
-            id: this.library.actions.length
+            id: this.library.actions.length,
+            image: 'icons/blank-tile.png'
         });
       },
 

@@ -92,12 +92,9 @@ fieldset {
     text-align: right;
 }
 
-option {
-    background-image: url(icons/blank-tile.png);
-    background-repeat: no-repeat;
-    padding-left: 20px;
-    height: 20px;
-    background-position: 2px;
+option > img {
+    vertical-align: middle;
+    background-size: 24px 24px;
 }
 
 .hidden {
