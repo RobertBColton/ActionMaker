@@ -1,9 +1,9 @@
 <template>
   <div class="content">
       <div class="toolbar etched-border">
-          <button type="button" title="New Library"><img src="icons/new.png"/></button>
-          <input id="file-input" class="hidden" type="file" accept=".lgl,.lib"/>
-          <button type="button" title="Open Library" v-on:click="loadLibrary"><img src="icons/open.png"/></button>
+          <button type="button" title="New Library" v-on:click="newLibrary"><img src="icons/new.png"/></button>
+          <input id="file-input" class="hidden" type="file" accept=".lgl,.lib" v-on:change="librarySelected"/>
+          <button type="button" title="Open Library" v-on:click="openLibrary"><img src="icons/open.png"/></button>
           <button type="button" title="Import Actions"><img src="icons/import.png"/></button>
           <span class="spacer"></span>
           <div class="dropdown">
@@ -40,7 +40,7 @@
                   <option v-for="action in library.actions" value="Move2">{{action.name}}</option>
               </select>
               <div class="toolbar toolbar-centered padded">
-                  <button type="button" title="Add"><img src="icons/add.png"/></button>
+                  <button type="button" title="Add" v-on:click="addAction"><img src="icons/add.png"/></button>
                   <button type="button" title="Delete"><img src="icons/delete.png"/></button>
                   <button type="button" title="Duplicate"><img src="icons/copy.png"/></button>
                   <button type="button" title="Shift Up"><img src="icons/up.png"/></button>
@@ -143,37 +143,63 @@
 </template>
 
 <script>
+import Reader from './reader.js';
+
 export default {
   data () {
     function randomId() {
       return Math.floor(Math.random() * 999000) + 1000;
     };
 
+    function Library() {
+        var library = {
+            caption: '',
+            id: randomId(),
+            initializationCode: '',
+            advanced: false,
+            author: '',
+            version: 100,
+            lastChanged: '',
+            information: '',
+            actions: [
+            { name: 'Learn JavaScript' },
+            { name: 'Learn Vue' },
+            { name: 'Build something awesome' }
+            ]
+        };
+        return library;
+    };
+
     return {
-      library: {
-        caption: '',
-        id: randomId(),
-        initializationCode: '',
-        advanced: false,
-        author: '',
-        version: 100,
-        lastChanged: '',
-        information: '',
-        actions: [
-          { name: 'Learn JavaScript' },
-          { name: 'Learn Vue' },
-          { name: 'Build something awesome' }
-        ]
+      library: new Library(),
+
+      newLibrary: () => {
+        if (!confirm("Are you sure you wish to create a new library? Unsaved changes will be lost.")) return;
+        this.library = new Library();
       },
 
-      loadLibrary: () => {
-        this.library.actions[0].name = "Heller";
+      openLibrary: () => {
+        document.getElementById('file-input').click();
+      },
+
+      librarySelected: (evt) => {
+        var files = evt.target.files;
+
+        var library = Reader.deserialize(files[0]);
+        if (library) this.library = library;
+      },
+
+      addAction: () => {
+        this.library.actions.push({
+            name: "Action " + this.library.actions.length,
+            id: this.library.actions.length
+        });
       },
 
       createId: () => {
         this.library.id = randomId();
       }
     };
-  },
+  }
 }
 </script>
