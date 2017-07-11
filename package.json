@@ -1,28 +1,28 @@
 {
-  "name": "actionmaker",
-  "version": "0.0.1",
-  "description": "HTML5 Action Library Editor for GameMaker and ENIGMA ",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RobertBColton/ActionMaker.git"
-  },
-  "author": "Robert B. Colton",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/RobertBColton/ActionMaker/issues"
-  },
-  "homepage": "https://github.com/RobertBColton/ActionMaker#readme",
-  "scripts": {
-    "build": "rollup -c"
-  },
-  "dependencies": {
-    "vue": "^2.3.3"
-  },
-  "devDependencies": {
-    "rollup": "^0.43.0",
-    "rollup-plugin-vue": "^2.4.0",
-    "rollup-plugin-css-only": "0.2.0",
-    "rollup-plugin-node-resolve": "3.0.0"
-  }
+	"name": "actionmaker",
+	"version": "0.0.1",
+	"description": "HTML5 Action Library Editor for GameMaker and ENIGMA ",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RobertBColton/ActionMaker.git"
+	},
+	"author": "Robert B. Colton",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/RobertBColton/ActionMaker/issues"
+	},
+	"homepage": "https://github.com/RobertBColton/ActionMaker#readme",
+	"scripts": {
+		"build": "rollup -c"
+	},
+	"dependencies": {
+		"vue": "^2.3.3"
+	},
+	"devDependencies": {
+		"rollup": "^0.43.0",
+		"rollup-plugin-vue": "^2.4.0",
+		"rollup-plugin-css-only": "0.2.0",
+		"rollup-plugin-node-resolve": "3.0.0"
+	}
 }
