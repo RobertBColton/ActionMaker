@@ -2,10 +2,28 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 		<link rel="stylesheet" type="text/css" href="./bin/index.css">
 	</head>
 	<body>
-		<div id="ActionMaker"></div>
+		<div id="application"></div>
 		<script type="text/javascript" src="./bin/index.js"></script>
+		<script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+		<script>
+			require.config({ paths: { 'vs': './node_modules/monaco-editor/min/vs' }});
+			require(['vs/editor/editor.main'], function() {
+				var editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+					value: [
+						'{',
+						'\t// this code will be executed when your library is loaded',
+						'\tshow_message("Hello world!");',
+						'}',
+						''
+					].join('\n'),
+					language: 'javascript'
+				});
+			});
+		</script>
 	</body>
 </html>

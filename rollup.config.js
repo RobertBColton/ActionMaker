@@ -1,6 +1,7 @@
 import vue from 'rollup-plugin-vue';
 import resolve from 'rollup-plugin-node-resolve';
 import css from 'rollup-plugin-css-only';
+import replace from 'rollup-plugin-replace';
 
 export default {
 	entry: './lib/index.js',
@@ -9,13 +10,15 @@ export default {
 	moduleName: 'ActionMaker',
 	sourceMap: false,
 	useStrict: false,
-	intro: "process = { env: { NODE_ENV: window } };",
 	globals: {
-		vue: 'Vue'
+		'vue': 'Vue'
 	},
 	plugins: [
 		vue({styleToImports: true}),
 		css({output: './bin/index.css'}),
-		resolve()
+		resolve(),
+		replace({
+      		'process.env.NODE_ENV': JSON.stringify( 'development' )
+    	})
 	]
 }
