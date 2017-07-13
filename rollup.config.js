@@ -18,7 +18,7 @@ export default {
 		css({output: './bin/index.css'}),
 		resolve(),
 		replace({
-      		'process.env.NODE_ENV': JSON.stringify( 'development' )
-    	})
+			'process.env.NODE_ENV': JSON.stringify( 'development' )
+		})
 	]
 }
