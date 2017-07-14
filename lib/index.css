@@ -1,8 +1,5 @@
-body {
-	height: 100%;
-	display: flex;
-}
 
+/* Generic styles and simple toggles... */
 .etched-border {
 	border-color: #dfdfdf #bebebe #bebebe #dfdfdf;
 	border-style: solid;
@@ -10,30 +7,77 @@ body {
 }
 
 .padded {
-	padding: 10px;
+	padding: 6px;
 }
 
+.hidden {
+	display: none;
+}
+
+.no-select {
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+/* Generic display styles... */
+.flex-block {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.inline-flex {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	margin-bottom: 6px;
+}
+
+.inline-flex > label {
+	margin-left: auto;
+	margin-right: 6px;
+	text-align: right;
+}
+
+.flex-panel {
+	display: flex;
+	flex-flow: column;
+	flex-grow: 1;
+	padding: 6px;
+}
+
+/* Toolbar styling */
 .toolbar {
-	padding: 5px;
+	padding: 6px;
 	display: flex;
 	align-items: center;
-}
-
-.content > .toolbar {
 	background: linear-gradient(#efefef 75%, #dedede 100%);
 }
 
 button {
 	padding: 2px;
+	vertical-align: middle; /* for Microsoft Edge browser */
 }
 
 button > img {
 	display: block;
+	width: 18px;
+	height: 18px;
 }
 
-.content {
-	margin: auto;
-	background-color: #fafafa;
+label {
+	display: block;
+	white-space: nowrap;
+}
+
+.toolbar > label {
+	display: inline-block;
 }
 
 .spacer {
@@ -41,84 +85,7 @@ button > img {
 	display: inline-block;
 }
 
-.center {
-	display: flex;
-}
-
-.toolbar-centered {
-	justify-content: center;
-}
-
-.action-properties {
-	display: inline-block;
-}
-
-.library-properties {
-	display: inline-block;
-}
-
-#action-list {
-	width: 100%;
-	height: 100%;
-}
-
-label {
-	display: block;
-}
-
-.toolbar > label {
-	display: inline-block;
-	white-space: nowrap;
-}
-
-.flex-block {
-	display: flex;
-	flex-wrap: nowrap;
-	align-items: center;
-	margin-bottom: 5px;
-}
-
-fieldset {
-	margin-bottom: 5px;
-}
-
-.inline-flex {
-	display: inline-flex;
-	align-items: center;
-}
-
-.flex-block > label {
-	margin-left: auto;
-	margin-right: 5px;
-	text-align: right;
-}
-
-option > img {
-	vertical-align: middle;
-	background-size: 24px 24px;
-}
-
-.hidden {
-	display: none;
-}
-
-.inline-block {
-	display: inline-block;
-}
-
-td > input, select {
-	width: 100%;
-	box-sizing: border-box;
-}
-
-td > label {
-	text-align: right;
-}
-
-.image-preview {
-	background-color: white;
-}
-
+/* Dropdown styling */
 .dropdown > button {
 	display: block;
 }
@@ -126,7 +93,7 @@ td > label {
 .dropdown-content {
 	display: none;
 	position: absolute;
-	background-color: #f9f9f9;
+	background-color: #ebebeb;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 	border: 1px solid rgba(0,0,0,0.2);
 	z-index: 1;
@@ -142,54 +109,9 @@ td > label {
 }
 
 .dropdown-content a:hover {
-	background-color: #ebebeb;
+	background-color: #f9f9f9;
 }
 
 .dropdown:hover .dropdown-content {
 	display: block;
-}
-
- /* Style the tab */
-.tab-header {
-	margin-right: 0;
-	overflow: hidden;
-	border: 1px solid #ccc;
-	background-color: #e1e1e1;
-}
-
-/* Style the buttons inside the tab */
-.tab-header button {
-	background-color: inherit;
-	float: left;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	padding: 14px 16px;
-	transition: 0.1s;
-}
-
-.tab-header button.is-selected {
-	background-color: #fafafa;
-}
-
-/* Change background color of buttons on hover */
-.tab-header button:hover {
-	background-color: white;
-}
-
-/* Create an active/current tablink class */
-.tab-header button.active {
-	background-color: #ccc;
-}
-
-/* Style the tab content */
-.tab {
-	display: none;
-	padding: 6px 12px;
-	border: 1px solid #ccc;
-	border-top: none;
-}
-
-#monaco-editor {
-	height: 400px;
 }

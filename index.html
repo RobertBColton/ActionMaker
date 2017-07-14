@@ -5,6 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 		<link rel="stylesheet" type="text/css" href="./bin/index.css">
+		<title>ActionMaker</title>
 	</head>
 	<body>
 		<div id="application"></div>
@@ -15,13 +16,17 @@
 			require(['vs/editor/editor.main'], function() {
 				var editor = monaco.editor.create(document.getElementById('monaco-editor'), {
 					value: [
+						'/**',
+						' * This code will be executed when your library is loaded.',
+						' */',
 						'{',
-						'\t// this code will be executed when your library is loaded',
-						'\tshow_message("Hello world!");',
+						'\t// say something',
+						'\tshow_message("Hello, ActionMaker Library!");',
 						'}',
 						''
 					].join('\n'),
-					language: 'javascript'
+					language: 'javascript',
+					theme: "vs-dark"
 				});
 			});
 		</script>

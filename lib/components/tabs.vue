@@ -1,15 +1,15 @@
 <template>
 	<div class="tabs">
 		<div class="tab-header">
-			<button v-for="tab in tabs"
-					class="tab-button"
-					:class="{ 'is-selected': (tab === selectedTab) }"
+			<div v-for="tab in tabs"
+					class="tab-link no-select"
+					:class="{ 'active': (tab === selectedTab) }"
 					@click="selectedTab = tab">
-				{{ tab.props['name'].default }}
-			</button>
+				{{tab.name}}
+			</div>
 		</div>
 		<keep-alive>
-			<component class="etched-border" v-bind:is="selectedTab"></component>
+			<component class="tab etched-border" v-bind:is="selectedTab"></component>
 		</keep-alive>
 	</div>
 </template>
@@ -23,12 +23,58 @@ export default {
 		}
 	},
 
-	data () {
-		return { selectedTab: undefined };
+	data() {
+		return {
+			selectedTab: undefined
+		};
 	},
 
-	mounted() {
+	created() {
 		this.selectedTab = this.tabs[0];
 	}
 }
 </script>
+
+<style>
+/* Style the tabs root so the header appears on top followed by the visible tab */
+.tabs {
+	display: flex;
+	flex-direction: column;
+}
+
+/* We want our tabs to fill the height of this component by default */
+.tab {
+	flex: 1;
+}
+
+ /* Style the tab header area */
+.tab-header {
+	margin-right: 0;
+	overflow: hidden;
+	border: 1px solid #ccc;
+	background-color: #e1e1e1;
+}
+
+/* Style the buttons inside the tab header */
+.tab-link {
+	background-color: inherit;
+	float: left;
+	border: 1px solid transparent;
+	outline: none;
+	cursor: pointer;
+	padding: 14px 16px;
+	transition: 0.1s;
+}
+
+/* Change background color of button for selected tab */
+.tab-link.active {
+	background-color: #fafafa;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+/* Change background color of buttons on hover */
+.tab-link:hover {
+	background-color: white;
+}
+</style>

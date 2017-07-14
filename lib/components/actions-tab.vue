@@ -1,25 +1,24 @@
 <template>
-	<div>
-		<div class="library-properties padded etched-border">
-			<div class="toolbar toolbar-centered padded">
+	<div id="actions-tab">
+		<div class="flex-panel">
+			<div class="inline-flex">
 				<button type="button" title="Add" @click="addAction"><img src="icons/add.png"></button>
 				<button type="button" title="Delete"><img src="icons/delete.png"></button>
 				<button type="button" title="Duplicate"><img src="icons/copy.png"></button>
 				<button type="button" title="Shift Up"><img src="icons/up.png"></button>
 				<button type="button" title="Shift Down"><img src="icons/down.png"></button>
 			</div>
-			<select id="action-list"
-					name="action-list"
-					size="20"
-					v-model="selectedAction">
-				<option v-for="action in actions" value="action"><img :src="action.image" width="18" height="18">
+			<ul id="action-list" class="no-select">
+				<li v-for="action in actions"
+					:class="{ 'active': (action === selectedAction) }"
+					@click="selectedAction = action">
+					<img :src="action.image" width="18" height="18">
 					{{action.name}}
-				</option>
-			</select>
+				</li>
+			</ul>
 		</div>
-		<div class="action-properties etched-border" v-if="selectedAction">
-			<div>
-			<fieldset class="padded">
+		<div class="flex-panel" v-if="selectedAction">
+			<fieldset>
 				<legend>General Action Properties</legend>
 				<table>
 					<tr>
@@ -37,8 +36,8 @@
 					<tr>
 						<td><label>Image:</label></td>
 						<td>
-							<div class="inline-flex">
-								<img class="image-preview etched-border padded" src="icons/blank-tile.png">
+							<div class="flex-block">
+								<img class="image-preview etched-border" width="32" height="32" :src="selectedAction.image">
 								<span class="spacer"></span>
 								<input id="icon-input" class="hidden" type="file" accept="image/*">
 								<button type="button" title="Change Image" @click="openIcon"><img src="icons/open.png"></button>
@@ -64,8 +63,9 @@
 								<option value="">- Label</option>
 							</select>
 						</td>
-						<td colspan="2">
-							<div class="inline-flex-block toolbar toolbar-centered padded">
+						<td></td>
+						<td>
+							<div class="flex-block">
 								<label><input type="checkbox">Hidden</label>
 								<label><input type="checkbox">Advanced</label>
 								<label><input type="checkbox">Pro Edition Only</label>
@@ -86,51 +86,42 @@
 					</tr>
 				</table>
 			</fieldset>
-			<fieldset class="padded">
+			<fieldset>
 				<legend>Interface</legend>
-				<div class="inline-block">
-					<div class="flex-block">
-						<label>Kind:</label>
-						<select>
-							<option value="">Normal</option>
-							<option value="">None</option>
-							<option value="">Arrows</option>
-							<option value="">Code</option>
-							<option value="">Text</option>
-						</select>
-					</div>
-					<div class="padded">
-						<label><input type="checkbox">Question</label>
-						<label><input type="checkbox">Show "Apply To"</label>
-						<label><input type="checkbox">Show "Relative"</label>
-					</div>
+				<div class="inline-flex">
+					<label>Kind:</label>
+					<select>
+						<option value="">Normal</option>
+						<option value="">None</option>
+						<option value="">Arrows</option>
+						<option value="">Code</option>
+						<option value="">Text</option>
+					</select>
+				</div>
+				<div>
+					<label><input type="checkbox">Question</label>
+					<label><input type="checkbox">Show "Apply To"</label>
+					<label><input type="checkbox">Show "Relative"</label>
 				</div>
 			</fieldset>
-			</div>
 		</div>
 	</div>
 </template>
 
 <script>
 export default {
-	props: {
-		name: {
-			type: String,
-			required: true,
-			default: "Actions"
-		},
+	name: "Actions",
 
-		actions: {
-			type: Array,
-			required: true,
-			default: []
-		}
-	},
-
-	data () {
+	data() {
 		return {
 			selectedAction: undefined
 		};
+	},
+
+	computed: {
+		actions() {
+			return this.$root.library.actions;
+		}
 	},
 
 	methods: {
@@ -148,3 +139,51 @@ export default {
 	}
 }
 </script>
+
+<style>
+#actions-tab {
+	flex-flow: row;
+}
+
+#action-list {
+	width: 100%;
+	height: 100%;
+}
+
+ul {
+	cursor: pointer;
+	overflow: auto;
+	background-color: white;
+	list-style: none;
+	border: 1px solid gray;
+	padding-left: 0;
+	margin: 0;
+}
+
+li {
+	white-space: nowrap;
+}
+
+li:hover {
+	background-color: lightgray;
+}
+
+li.active {
+	background-color: dodgerblue;
+	color: white;
+}
+
+li > img {
+	vertical-align: middle;
+	width: 18px;
+	height: 18px;
+}
+
+fieldset {
+	margin-bottom: 5px;
+}
+
+.image-preview {
+	background-color: white;
+}
+</style>
