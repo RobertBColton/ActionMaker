@@ -7,7 +7,7 @@
 				<td><label>Version:</label></td>
 				<td><input type="text" v-model="library.version"></td>
 				<td><label>Last changed:</label></td>
-				<td><input type="date" :value="library.changed"></td>
+				<td><input type="date" :value="localizedChanged" disabled></td>
 			</tr>
 		</table>
 		<textarea class="info-textarea" v-model="library.info"></textarea>
@@ -21,6 +21,12 @@ export default {
 	computed: {
 		library() {
 			return this.$root.library;
+		},
+
+		localizedChanged() {
+			var epoch = new Date(1899,11,29,23,59,59).getTime();
+			var ms = this.library.changed * (24 * 60 * 60 * 1000);
+			return (new Date(ms + epoch)).toLocaleString();
 		}
 	}
 }
