@@ -39,7 +39,7 @@
 							<div class="flex-block">
 								<img class="image-preview etched-border" width="32" height="32" :src="selectedAction.image">
 								<span class="spacer"></span>
-								<input id="icon-input" class="hidden" type="file" accept="image/*">
+								<input id="icon-input" class="hidden" type="file" accept="image/image">
 								<button type="button" title="Change Image" @click="openIcon"><img src="icons/open.png"></button>
 							</div>
 						</td>
