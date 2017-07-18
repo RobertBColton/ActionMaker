@@ -2,11 +2,11 @@
 	<div>
 		<table class="padded">
 			<tr>
-				<td><label>Author:</label></td>
+				<td><label>Author</label></td>
 				<td><input type="text" v-model="library.author"></td>
-				<td><label>Version:</label></td>
+				<td><label>Version</label></td>
 				<td><input type="text" v-model="library.version"></td>
-				<td><label>Last changed:</label></td>
+				<td><label>Last changed</label></td>
 				<td><input type="date" :value="localizedChanged" disabled></td>
 			</tr>
 		</table>

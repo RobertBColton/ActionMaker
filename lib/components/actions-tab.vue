@@ -12,7 +12,7 @@
 				<li v-for="action in actions"
 					:class="{ 'active': (action === selectedAction) }"
 					@click="selectedAction = action">
-					<img :src="action.image" width="18" height="18">
+					<span class="icon-preview" :style="{ 'background-image': 'url(' + action.image + ')' }"></span>
 					{{action.name}}
 				</li>
 			</ul>
@@ -22,19 +22,19 @@
 				<legend>General Action Properties</legend>
 				<table>
 					<tr>
-						<td><label>Name:</label></td>
+						<td><label>Name</label></td>
 						<td><input type="text" v-model="selectedAction.name"></td>
-						<td><label>Description:</label></td>
+						<td><label>Description</label></td>
 						<td><input type="text"></td>
 					</tr>
 					<tr>
-						<td><label>Id:</label></td>
+						<td><label>Id</label></td>
 						<td><input type="text" v-model.number="selectedAction.id"></td>
-						<td><label>List text:</label></td>
+						<td><label>List text</label></td>
 						<td><input type="text"></td>
 					</tr>
 					<tr>
-						<td><label>Image:</label></td>
+						<td><label>Image</label></td>
 						<td>
 							<div class="flex-block">
 								<img class="image-preview etched-border" width="32" height="32" :src="selectedAction.image">
@@ -43,11 +43,11 @@
 								<button type="button" title="Change Image" @click="openIcon"><img src="icons/open.png"></button>
 							</div>
 						</td>
-						<td><label>Hint text:</label></td>
+						<td><label>Hint text</label></td>
 						<td><input type="text"></td>
 					</tr>
 					<tr>
-						<td><label>Kind:</label></td>
+						<td><label>Kind</label></td>
 						<td>
 							<select>
 								<option value="">Normal</option>
@@ -73,7 +73,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td><label>Execution:</label></td>
+						<td><label>Execution</label></td>
 						<td>
 							<select>
 								<option value="">None</option>
@@ -81,7 +81,7 @@
 								<option value="">Code</option>
 							</select>
 						</td>
-						<td><label>Function:</label></td>
+						<td><label>Function</label></td>
 						<td><input type="text"></td>
 					</tr>
 				</table>
@@ -89,7 +89,7 @@
 			<fieldset>
 				<legend>Interface</legend>
 				<div class="inline-flex">
-					<label>Kind:</label>
+					<label>Kind</label>
 					<select>
 						<option value="">Normal</option>
 						<option value="">None</option>
@@ -162,6 +162,14 @@ ul {
 
 li {
 	white-space: nowrap;
+	margin-top: 1px;
+}
+
+li > .icon-preview {
+	width: 24px;
+	height: 24px;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 li:hover {

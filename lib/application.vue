@@ -152,6 +152,8 @@ header > * {
 	flex-flow: column;
 	background-color: #fafafa;
 	border: 1px solid black;
+	font-family: 'Segoe UI', 'Helvetica Neue', 'San Fransicso', 'Lucida Grande', sans-serif;
+	font-size: 11pt;
 }
 
 .tabs {
@@ -161,6 +163,10 @@ header > * {
 .tab {
 	display: flex;
 	flex-flow: column;
+}
+
+td {
+	padding: 2px;
 }
 
 td > input, select {
