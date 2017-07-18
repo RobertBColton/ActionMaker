@@ -24,9 +24,9 @@
 				<span class="spacer"></span>
 
 				<button type="button" title="Random Id" @click="createId"><img src="icons/tag.png"></button>
-				<input id="init-input" class="hidden" type="file" accept=".txt,.gml" @change="initSelected">
+				<input id="init-input" class="hidden" type="file" accept=".txt,.gml" @change="textFileSelected">
 				<button type="button" title="Load Initialization Script" @click="loadInit"><img src="icons/script.png"></button>
-				<input id="info-input" class="hidden" type="file" accept=".txt" @change="infoSelected">
+				<input id="info-input" class="hidden" type="file" accept=".txt" @change="textFileSelected">
 				<button type="button" title="Load Information" @click="loadInfo"><img src="icons/info.png"></button>
 
 				<span class="spacer"></span>
@@ -99,16 +99,23 @@ export default {
 			document.getElementById('init-input').click();
 		},
 
-		initSelected() {
-
-		},
-
 		loadInfo() {
 			document.getElementById('info-input').click();
 		},
 
-		infoSelected() {
+		textFileSelected(evt) {
+			var file = evt.target.files[0];
+			var reader = new FileReader();
 
+			reader.onload = (e) => {
+				if (evt.target.id === 'init-input') {
+					this.library.init = reader.result;
+				} else if (evt.target.id === 'info-input') {
+					this.library.info = reader.result;
+				}
+			};
+
+			reader.readAsText(file);
 		},
 
 		help() {
