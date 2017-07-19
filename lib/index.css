@@ -24,6 +24,10 @@
     user-select: none;
 }
 
+.align-top {
+	vertical-align: top;
+}
+
 /* Generic display styles... */
 .flex-block {
 	display: flex;
@@ -49,7 +53,6 @@
 	display: flex;
 	flex-flow: column;
 	flex-grow: 1;
-	padding: 6px;
 }
 
 /* Toolbar styling */
@@ -66,13 +69,13 @@ button {
 }
 
 button > img {
-	display: block;
+	display: inline-block;
+	vertical-align: bottom;
 	width: 18px;
 	height: 18px;
 }
 
 label {
-	display: block;
 	white-space: nowrap;
 }
 

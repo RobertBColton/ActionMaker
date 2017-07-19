@@ -1,23 +1,23 @@
 <template>
 	<div id="actions-tab">
-		<div class="flex-panel">
+		<div class="flex-panel padded">
 			<div class="inline-flex">
-				<button type="button" title="Add" @click="addAction"><img src="icons/add.png"></button>
-				<button type="button" title="Delete"><img src="icons/delete.png"></button>
-				<button type="button" title="Duplicate"><img src="icons/copy.png"></button>
-				<button type="button" title="Shift Up"><img src="icons/up.png"></button>
-				<button type="button" title="Shift Down"><img src="icons/down.png"></button>
+				<button type="button" title="Insert New Action" @click="insertAction(selectedIndex)"><img src="icons/add.png"></button>
+				<button type="button" title="Delete" @click="deleteAction(selectedIndex)"><img src="icons/delete.png"></button>
+				<button type="button" title="Duplicate" @click="duplicateAction(selectedIndex)"><img src="icons/copy.png"></button>
+				<button type="button" title="Shift Up" @click="shiftUp(selectedIndex)"><img src="icons/up.png"></button>
+				<button type="button" title="Shift Down" @click="shiftDown(selectedIndex)"><img src="icons/down.png"></button>
 			</div>
-			<ul id="action-list" class="no-select">
-				<li v-for="action in actions"
-					:class="{ 'active': (action === selectedAction) }"
-					@click="selectedAction = action">
+			<ul id="action-list" class="lv no-select">
+				<li v-for="(action,index) in actions"
+					:class="{ 'active': (index === selectedIndex) }"
+					@click="selectedIndex = index">
 					<span class="icon-preview" :style="{ 'background-image': 'url(' + action.image + ')' }"></span>
 					{{action.name}}
 				</li>
 			</ul>
 		</div>
-		<div class="flex-panel" v-if="selectedAction">
+		<div class="flex-panel padded" v-if="selectedAction">
 			<fieldset>
 				<legend>General Action Properties</legend>
 				<table>
@@ -35,13 +35,13 @@
 					</tr>
 					<tr>
 						<td><label>Image</label></td>
-						<td>
-							<div class="flex-block">
+						<td class="align-top">
+							<span class="flex-block">
 								<img class="image-preview etched-border" width="32" height="32" :src="selectedAction.image">
 								<span class="spacer"></span>
-								<input id="icon-input" class="hidden" type="file" accept="image/image">
-								<button type="button" title="Change Image" @click="openIcon"><img src="icons/open.png"></button>
-							</div>
+								<input id="image-input" class="hidden" type="file" accept="image/*">
+								<button type="button" title="Change Image" @click="openImage"><img src="icons/open-image.png"></button>
+							</span>
 						</td>
 						<td><label>Hint text</label></td>
 						<td><input type="text"></td>
@@ -98,7 +98,7 @@
 						<option value="">Text</option>
 					</select>
 				</div>
-				<div>
+				<div class="flex-panel">
 					<label><input type="checkbox">Question</label>
 					<label><input type="checkbox">Show "Apply To"</label>
 					<label><input type="checkbox">Show "Relative"</label>
@@ -114,27 +114,59 @@ export default {
 
 	data() {
 		return {
-			selectedAction: undefined
+			selectedIndex: -1
 		};
 	},
 
 	computed: {
 		actions() {
 			return this.$root.library.actions;
+		},
+
+		selectedAction() {
+			return this.actions[this.selectedIndex];
 		}
 	},
 
 	methods: {
-		addAction() {
-			this.actions.push({
+		insertAction(index = this.selectedIndex) {
+			if (index < 0) index = this.actions.length;
+			this.actions.splice(index, 0, {
 				name: "Action " + this.actions.length,
 				id: this.actions.length,
 				image: 'icons/blank-tile.png'
 			});
 		},
 
-		openIcon() {
-			document.getElementById('icon-input').click();
+		deleteAction(index = this.selectedIndex) {
+			if (this.selectedIndex >= this.actions.length - 1) this.selectedIndex -= 1;
+			this.actions.splice(index, 1);
+		},
+
+		duplicateAction(index = this.selectedIndex) {
+			var clone = Object.assign({}, this.actions[index]);
+			this.actions.splice(index, 0, clone);
+			this.selectedIndex += 1;
+		},
+
+		swapActions(one, two) {
+			var temp = this.actions[one];
+			this.actions[one] = this.actions[two];
+			this.actions.splice(two, 1, temp);
+		},
+
+		shiftUp(index = this.selectedIndex) {
+			if (index < 1) return;
+			this.swapActions(index, this.selectedIndex = index - 1);
+		},
+
+		shiftDown(index = this.selectedIndex) {
+			if (index >= this.actions.length - 1) return;
+			this.swapActions(index, this.selectedIndex = index + 1);
+		},
+
+		openImage() {
+			document.getElementById('image-input').click();
 		}
 	}
 }
@@ -147,10 +179,10 @@ export default {
 
 #action-list {
 	width: 100%;
-	height: 100%;
+	flex: 1 1 512px;
 }
 
-ul {
+.lv {
 	cursor: pointer;
 	overflow: auto;
 	background-color: white;
@@ -160,31 +192,25 @@ ul {
 	margin: 0;
 }
 
-li {
+.lv > li {
 	white-space: nowrap;
 	margin-top: 1px;
 }
 
-li > .icon-preview {
+.lv > li > .icon-preview {
 	width: 24px;
 	height: 24px;
 	display: inline-block;
 	vertical-align: middle;
 }
 
-li:hover {
+.lv > li:hover {
 	background-color: lightgray;
 }
 
-li.active {
+.lv > li.active {
 	background-color: dodgerblue;
 	color: white;
-}
-
-li > img {
-	vertical-align: middle;
-	width: 18px;
-	height: 18px;
 }
 
 fieldset {

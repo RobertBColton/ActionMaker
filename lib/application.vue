@@ -2,7 +2,7 @@
 	<div id="content">
 		<header>
 			<h1>ActionMaker</h1>
-			<h3>Copyright © 2017, Robert Colton</h3>
+			<h3 class="hidden">Copyright © 2017, Robert Colton</h3>
 		</header>
 		<div id="ActionMaker">
 			<div class="toolbar etched-border">
@@ -140,9 +140,17 @@ header > * {
 	font-family: Verdana;
 	font-weight: 900;
 	color: white;
-	text-shadow: 0px 4px 3px black,
-				0px 8px 13px rgba(0,0,0,0.5),
-				0px 18px 23px rgba(0,0,0,0.1);
+	text-shadow:	0 3px 0 hsl(174,5%,0%),
+					0 4px 0 hsl(174,5%,0%),
+					0 5px 0 hsl(174,5%,0%),
+					0 6px 0 hsl(174,5%,0%),
+					0 7px 0 hsl(174,5%,0%),
+					0 8px 0 hsl(174,5%,0%),
+
+				  0 3px 1px rgba(0,0,0,.9),
+				  0 5px 5px rgba(0,0,0,.5),
+				 0 10px 5px rgba(0,0,0,.5),
+				0 20px 10px rgba(0,0,0,.6);
 }
 
 #ActionMaker {
@@ -165,12 +173,17 @@ header > * {
 	flex-flow: column;
 }
 
+tr {
+	vertical-align: baseline;
+}
+
 td {
+	text-align: right;
 	padding: 2px;
 }
 
-td > input, select {
-	width: 100%;
+td > input, td > select {
+	min-width: 100%;
 	box-sizing: border-box;
 }
 
