@@ -9,7 +9,7 @@
 			</div>
 		</div>
 		<keep-alive>
-			<component class="tab etched-border" v-bind:is="selectedTab"></component>
+			<component class="tab etched-border" :is="selectedTab"></component>
 		</keep-alive>
 	</div>
 </template>
@@ -25,12 +25,8 @@ export default {
 
 	data() {
 		return {
-			selectedTab: undefined
+			selectedTab: this.tabs[0]
 		};
-	},
-
-	created() {
-		this.selectedTab = this.tabs[0];
 	}
 }
 </script>

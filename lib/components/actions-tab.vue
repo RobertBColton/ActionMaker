@@ -1,7 +1,7 @@
 <template>
 	<div id="actions-tab">
 		<div class="flex-panel padded">
-			<div class="inline-flex">
+			<div class="inline-flex" v-once>
 				<button type="button" title="Insert New Action" @click="insertAction(selectedIndex)"><img src="icons/add.png"></button>
 				<button type="button" title="Delete" @click="deleteAction(selectedIndex)"><img src="icons/delete.png"></button>
 				<button type="button" title="Duplicate" @click="duplicateAction(selectedIndex)"><img src="icons/copy.png"></button>
@@ -25,13 +25,13 @@
 						<td><label>Name</label></td>
 						<td><input type="text" v-model="selectedAction.name"></td>
 						<td><label>Description</label></td>
-						<td><input type="text"></td>
+						<td><input type="text" v-model="selectedAction.description"></td>
 					</tr>
 					<tr>
 						<td><label>Id</label></td>
 						<td><input type="text" v-model.number="selectedAction.id"></td>
 						<td><label>List text</label></td>
-						<td><input type="text"></td>
+						<td><input type="text" v-model="selectedAction.list"></td>
 					</tr>
 					<tr>
 						<td><label>Image</label></td>
@@ -44,64 +44,40 @@
 							</span>
 						</td>
 						<td><label>Hint text</label></td>
-						<td><input type="text"></td>
+						<td><input type="text" v-model="selectedAction.hint"></td>
 					</tr>
 					<tr>
 						<td><label>Kind</label></td>
-						<td>
-							<select>
-								<option value="">Normal</option>
-								<option value="">Begin Group</option>
-								<option value="">End Group</option>
-								<option value="">Else</option>
-								<option value="">Exit</option>
-								<option value="">Repeat</option>
-								<option value="">Variable</option>
-								<option value="">Code</option>
-								<option value="">- Placeholder</option>
-								<option value="">- Separator</option>
-								<option value="">- Label</option>
-							</select>
-						</td>
+						<td><combo :items="kindList" v-model="selectedAction.kind"/></td>
 						<td></td>
 						<td>
 							<div class="flex-block">
-								<label><input type="checkbox">Hidden</label>
-								<label><input type="checkbox">Advanced</label>
-								<label><input type="checkbox">Pro Edition Only</label>
+								<label><input type="checkbox" v-model="selectedAction.hidden">Hidden</label>
+								<label><input type="checkbox" v-model="selectedAction.advanced">Advanced</label>
+								<label><input type="checkbox" v-model="selectedAction.registered">Pro Edition Only</label>
 							</div>
 						</td>
 					</tr>
-					<tr>
+					<tr v-show="isSelectedNormal">
 						<td><label>Execution</label></td>
-						<td>
-							<select>
-								<option value="">None</option>
-								<option value="">Function</option>
-								<option value="">Code</option>
-							</select>
-						</td>
-						<td><label>Function</label></td>
-						<td><input type="text"></td>
+						<td><combo :items="execList" v-model="selectedAction.execType"/></td>
+						<template v-if="isSelectedFunction">
+							<td><label>Function</label></td>
+							<td><input type="text" v-model="selectedAction.execInfo"></td>
+						</template>
 					</tr>
 				</table>
 			</fieldset>
-			<fieldset>
+			<fieldset v-show="isSelectedNormal">
 				<legend>Interface</legend>
 				<div class="inline-flex">
 					<label>Kind</label>
-					<select>
-						<option value="">Normal</option>
-						<option value="">None</option>
-						<option value="">Arrows</option>
-						<option value="">Code</option>
-						<option value="">Text</option>
-					</select>
+					<td><combo :items="ifaceList" v-model="selectedAction.ifaceKind"/></td>
 				</div>
 				<div class="flex-panel">
-					<label><input type="checkbox">Question</label>
-					<label><input type="checkbox">Show "Apply To"</label>
-					<label><input type="checkbox">Show "Relative"</label>
+					<label><input type="checkbox" v-model="selectedAction.question">Question</label>
+					<label><input type="checkbox" v-model="selectedAction.apply">Show "Apply To"</label>
+					<label><input type="checkbox" v-model="selectedAction.relative">Show "Relative"</label>
 				</div>
 			</fieldset>
 		</div>
@@ -109,33 +85,91 @@
 </template>
 
 <script>
+import Library, { ACT_KINDS, ACT_EXEC_TYPES, ACT_IFACE_KINDS, ARG_KINDS } from '../library.js';
+
 export default {
 	name: "Actions",
 
 	data() {
 		return {
-			selectedIndex: -1
+			selectedIndex: -1,
+			kindList: {
+				"Normal": ACT_KINDS.NORMAL,
+				"Begin Group": ACT_KINDS.BEGIN_GROUP,
+				"End Group": ACT_KINDS.END_GROUP,
+				"Else": ACT_KINDS.ELSE,
+				"Exit": ACT_KINDS.EXIT,
+				"Repeat": ACT_KINDS.REPEAT,
+				"Variable": ACT_KINDS.VARIABLE,
+				"Code": ACT_KINDS.CODE,
+				"- Placeholder": ACT_KINDS.PLACEHOLDER,
+				"- Separator": ACT_KINDS.SEPARATOR,
+				"- Label": ACT_KINDS.LABEL
+			},
+			execList: {
+				"None": ACT_EXEC_TYPES.NONE,
+				"Function": ACT_EXEC_TYPES.FUNCTION,
+				"Code": ACT_EXEC_TYPES.CODE
+			},
+			ifaceList: {
+				"Normal": ACT_IFACE_KINDS.NORMAL,
+				"None": ACT_IFACE_KINDS.NONE,
+				"Arrows": ACT_IFACE_KINDS.ARROWS,
+				"Code": ACT_IFACE_KINDS.CODE,
+				"Text": ACT_IFACE_KINDS.TEXT,
+			},
+			argKindList: {
+				"Expression": ARG_KINDS.EXPRESSION,
+				"String": ARG_KINDS.STRING,
+				"Both": ARG_KINDS.BOTH,
+				"Boolean": ARG_KINDS.BOOLEAN,
+				"Menu": ARG_KINDS.MENU,
+				"Sprite": ARG_KINDS.SPRITE,
+				"Sound": ARG_KINDS.SOUND,
+				"Background": ARG_KINDS.BACKGROUND,
+				"Path": ARG_KINDS.PATH,
+				"Script": ARG_KINDS.SCRIPT,
+				"Object": ARG_KINDS.OBJECT,
+				"Room": ARG_KINDS.ROOM,
+				"Font": ARG_KINDS.FONT,
+				"Color": ARG_KINDS.COLOR,
+				"Timeline": ARG_KINDS.TIMELINE,
+				"Font String": ARG_KINDS.FONT_STRING
+			}
 		};
 	},
 
 	computed: {
+		library() {
+			this.selectedIndex = -1;
+			return this.$root.library;
+		},
+
 		actions() {
-			return this.$root.library.actions;
+			return this.library.actions;
 		},
 
 		selectedAction() {
 			return this.actions[this.selectedIndex];
+		},
+
+		isSelectedNormal() {
+			return this.selectedAction.kind === ACT_KINDS.NORMAL;
+		},
+
+		isSelectedFunction() {
+			return this.selectedAction.execType === ACT_EXEC_TYPES.FUNCTION;
+		},
+
+		isSelectedNormalInterface() {
+			return this.selectedAction.ifaceKind === ACT_IFACE_KINDS.NORMAL;
 		}
 	},
 
 	methods: {
 		insertAction(index = this.selectedIndex) {
 			if (index < 0) index = this.actions.length;
-			this.actions.splice(index, 0, {
-				name: "Action " + this.actions.length,
-				id: this.actions.length,
-				image: 'icons/blank-tile.png'
-			});
+			this.actions.splice(index, 0, Library.newAction(this.library));
 		},
 
 		deleteAction(index = this.selectedIndex) {

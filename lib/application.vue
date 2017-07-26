@@ -1,11 +1,11 @@
 <template>
 	<div id="content">
-		<header>
+		<header v-once>
 			<h1>ActionMaker</h1>
 			<h3 class="hidden">Copyright © 2017, Robert Colton</h3>
 		</header>
 		<div id="ActionMaker">
-			<div class="toolbar etched-border">
+			<div class="toolbar etched-border" v-once>
 				<button type="button" title="New Library" @click="newLibrary"><img src="icons/new.png"></button>
 				<input id="library-input" class="hidden" type="file" accept=".lgl,.lib" @change="librarySelected">
 				<button type="button" title="Open Library" @click="openLibrary(false)"><img src="icons/open.png"></button>
@@ -39,60 +39,60 @@
 </template>
 
 <script>
-import Reader from './reader.js';
+import Library from './library.js';
 
 import ActionsTab from './components/actions-tab.vue';
 import InfoTab from './components/info-tab.vue';
 import LibraryTab from './components/library-tab.vue';
-
-function randomId() {
-	return Math.floor(Math.random() * 999000) + 1000;
-};
 
 export default {
 	name: "ActionMaker",
 
 	data() {
 		return {
-			primaryTabs: [ LibraryTab, InfoTab, ActionsTab ]
+			primaryTabs: [ LibraryTab, InfoTab, ActionsTab ],
+			mergeLibrary: false
 		};
 	},
 
 	computed: {
-		library() {
-			return this.$root.library;
+		library: {
+			get() {
+				return this.$root.library;
+			},
+			set(newValue) {
+				this.$root.library = newValue;
+			}
 		}
 	},
 
 	methods: {
 		newLibrary() {
-			if (!confirm("Are you sure you wish to create a new library?\nUnsaved changes will be lost.")) return;
-			//this.$root.library = new Library();
+			if (!confirm("Are you sure you want to create a new library?\nUnsaved changes will be lost.")) return;
+			this.library = Library.newLibrary();
 		},
 
 		openLibrary(merge) {
 			var element = document.getElementById('library-input');
-			element.merge = merge;
+			this.mergeLibrary = merge;
 			element.click();
 		},
 
 		librarySelected(evt) {
 			var files = evt.target.files;
-			var merge = evt.target.merge;
 
-			Reader.deserialize(files[0], (library) => {
-				if (merge) {
-					library.actions.forEach((e) => {
-						this.library.actions.push(e);
-					});
+			Library.deserialize(files[0], (library) => {
+				if (this.mergeLibrary) {
+					var a = this.library.actions, b = library.actions;
+					a.push.apply(a, b);
 				} else {
-					this.$root.library = library;
+					this.library = library;
 				}
 			});
 		},
 
 		createId() {
-			this.library.id = randomId();
+			this.library.id = Library.randomId();
 		},
 
 		loadInit() {
