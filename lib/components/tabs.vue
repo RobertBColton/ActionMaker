@@ -1,7 +1,7 @@
 <template>
 	<div class="tabs">
 		<div class="tab-header">
-			<div v-for="tab in tabs"
+			<div v-for="tab of tabs"
 					class="tab-link no-select"
 					:class="{ 'active': (tab === selectedTab) }"
 					@click="selectedTab = tab">

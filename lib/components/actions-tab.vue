@@ -8,8 +8,8 @@
 				<button type="button" title="Shift Up" @click="shiftUp(selectedIndex)"><img src="icons/up.png"></button>
 				<button type="button" title="Shift Down" @click="shiftDown(selectedIndex)"><img src="icons/down.png"></button>
 			</div>
-			<ul id="action-list" class="lv no-select">
-				<li v-for="(action,index) in actions"
+			<ul id="action-list" class="lv no-select" tabindex="0">
+				<li v-for="(action,index) of actions"
 					:class="{ 'active': (index === selectedIndex) }"
 					@click="selectedIndex = index">
 					<span class="icon-preview" :style="{ 'background-image': 'url(' + action.image + ')' }"></span>
@@ -37,9 +37,9 @@
 						<td><label>Image</label></td>
 						<td class="align-top">
 							<span class="flex-block">
-								<img class="image-preview etched-border" width="32" height="32" :src="selectedAction.image">
+								<img class="image-preview" width="32" height="32" :src="selectedAction.image">
 								<span class="spacer"></span>
-								<input id="image-input" class="hidden" type="file" accept="image/*">
+								<input id="image-input" class="hidden" type="file" accept="image/*" @change="imageFileSelected">
 								<button type="button" title="Change Image" @click="openImage"><img src="icons/open-image.png"></button>
 							</span>
 						</td>
@@ -70,15 +70,34 @@
 			</fieldset>
 			<fieldset v-show="isSelectedNormal">
 				<legend>Interface</legend>
-				<div class="inline-flex">
-					<label>Kind</label>
-					<td><combo :items="ifaceList" v-model="selectedAction.ifaceKind"/></td>
-				</div>
-				<div class="flex-panel">
-					<label><input type="checkbox" v-model="selectedAction.question">Question</label>
-					<label><input type="checkbox" v-model="selectedAction.apply">Show "Apply To"</label>
-					<label><input type="checkbox" v-model="selectedAction.relative">Show "Relative"</label>
-				</div>
+				<table class="padded">
+					<tr>
+						<td><label>Kind</label></td>
+						<td><combo :items="ifaceList" v-model="selectedAction.ifaceKind"/></td>
+						<td rowspan="2" class="align-left">
+							<div class="flex-panel">
+								<label><input type="checkbox" v-model="selectedAction.question">Question</label>
+								<label><input type="checkbox" v-model="selectedAction.apply">Show "Apply To"</label>
+								<label><input type="checkbox" v-model="selectedAction.relative">Show "Relative"</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td><label>Arguments</label></td>
+						<td>
+							<input id="argnum" type="number" v-model.number.lazy:value="selectedArgumentCount" min="0" :max="MAX_ARGS"
+								:placeholder="'0 - ' + MAX_ARGS" :disabled="!selectedHasArguments" required>
+						</td>
+					</tr>
+				</table>
+				<table class="padded" v-if="selectedHasArguments">
+					<tr v-for="arg of selectedArguments">
+						<td><input type="text" v-model="arg.caption"></td>
+						<td><combo :items="argKindList" v-model="arg.kind"/></td>
+						<td><input type="text" v-model="arg.default"></td>
+						<td v-show="isArgumentMenu(arg)"><input type="text" v-model="arg.options"></td>
+					</tr>
+				</table>
 			</fieldset>
 		</div>
 	</div>
@@ -87,8 +106,16 @@
 <script>
 import Library, { ACT_KINDS, ACT_EXEC_TYPES, ACT_IFACE_KINDS, ARG_KINDS } from '../library.js';
 
+function mod(n, k) {
+	return ((n % k) + k) % k;
+}
+
 export default {
 	name: "Actions",
+
+	created() {
+		this.MAX_ARGS = Library.MAX_ARGS;
+	},
 
 	data() {
 		return {
@@ -153,6 +180,10 @@ export default {
 			return this.actions[this.selectedIndex];
 		},
 
+		selectedArguments() {
+			return this.selectedAction.args.slice(0, this.selectedAction.argnum);
+		},
+
 		isSelectedNormal() {
 			return this.selectedAction.kind === ACT_KINDS.NORMAL;
 		},
@@ -161,8 +192,20 @@ export default {
 			return this.selectedAction.execType === ACT_EXEC_TYPES.FUNCTION;
 		},
 
-		isSelectedNormalInterface() {
+		selectedHasArguments() {
 			return this.selectedAction.ifaceKind === ACT_IFACE_KINDS.NORMAL;
+		},
+
+		selectedArgumentCount: {
+			get() {
+				return this.selectedAction.argnum;
+			},
+			set(newValue) {
+				var el = document.getElementById("argnum");
+				if (el.checkValidity()) {
+					this.selectedAction.argnum = newValue;
+				}
+			}
 		}
 	},
 
@@ -183,24 +226,44 @@ export default {
 			this.selectedIndex += 1;
 		},
 
-		swapActions(one, two) {
-			var temp = this.actions[one];
-			this.actions[one] = this.actions[two];
-			this.actions.splice(two, 1, temp);
+		moveAction(one, two) {
+			if (two < 0 || two >= this.actions.length) {
+				two = mod(two, this.actions.length);
+				var temp = this.actions.splice(one, 1)[0];
+				this.actions.splice(two, 0, temp);
+			} else {
+				var temp = this.actions[one];
+				this.actions[one] = this.actions[two];
+				this.actions.splice(two, 1, temp);
+			}
+			return two;
 		},
 
 		shiftUp(index = this.selectedIndex) {
-			if (index < 1) return;
-			this.swapActions(index, this.selectedIndex = index - 1);
+			this.selectedIndex = this.moveAction(index, index - 1);
 		},
 
 		shiftDown(index = this.selectedIndex) {
-			if (index >= this.actions.length - 1) return;
-			this.swapActions(index, this.selectedIndex = index + 1);
+			this.selectedIndex = this.moveAction(index, index + 1);
 		},
 
 		openImage() {
 			document.getElementById('image-input').click();
+		},
+
+		imageFileSelected(evt) {
+			var file = evt.target.files[0];
+			var reader = new FileReader();
+
+			reader.onload = (e) => {
+				this.selectedAction.image = e.target.result;
+			};
+
+			reader.readAsDataURL(file);
+		},
+
+		isArgumentMenu(arg) {
+			return arg.kind === ARG_KINDS.MENU;
 		}
 	}
 }
@@ -228,7 +291,7 @@ export default {
 
 .lv > li {
 	white-space: nowrap;
-	margin-top: 1px;
+	padding: 1px;
 }
 
 .lv > li > .icon-preview {
@@ -243,8 +306,8 @@ export default {
 }
 
 .lv > li.active {
-	background-color: dodgerblue;
-	color: white;
+	background-color: Highlight;
+	color: HighlightText;
 }
 
 fieldset {
@@ -253,5 +316,6 @@ fieldset {
 
 .image-preview {
 	background-color: white;
+	border: 2px dashed;
 }
 </style>

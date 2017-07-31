@@ -1,7 +1,7 @@
 <template>
-    <select class="combo" v-model="selected"> 
-      <option v-for="(item, key) in items" :value="item">{{key}}</option>
-    </select>
+	<select class="combo" v-model="selected"> 
+		<option v-for="(item, key) of items" :value="item">{{key}}</option>
+	</select>
 </template>
 
 <script>

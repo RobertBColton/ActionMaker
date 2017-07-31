@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import Library from '../library';
+
 export default {
 	name: "Information",
 
@@ -24,9 +26,7 @@ export default {
 		},
 
 		lastChanged() {
-			var epoch = new Date(1899,11,29,23,59,59).getTime();
-			var ms = this.library.changed * (24 * 60 * 60 * 1000);
-			return (new Date(ms + epoch)).toLocaleString();
+			return Library.fromOADate(this.library.changed).toLocaleString();
 		}
 	}
 }

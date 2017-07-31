@@ -119,7 +119,7 @@ export default {
 		},
 
 		help() {
-			window.open('http://github.com/RobertBColton/ActionMaker/wiki', '_blank');
+			window.open('http://enigma-dev.org/docs/Wiki/Action', '_blank');
 		}
 	}
 }
@@ -128,6 +128,13 @@ export default {
 <style>
 body {
 	background: #0099cc;
+	margin: 0;
+	width: 100vw;
+}
+
+#content {
+	width: 800px;
+	margin: auto;
 }
 
 header {
@@ -154,18 +161,12 @@ header > * {
 }
 
 #ActionMaker {
-	width: 800px;
 	display: flex;
-	margin: auto;
 	flex-flow: column;
 	background-color: #fafafa;
 	border: 1px solid black;
 	font-family: 'Segoe UI', 'Helvetica Neue', 'San Fransicso', 'Lucida Grande', sans-serif;
 	font-size: 11pt;
-}
-
-.tabs {
-	flex: auto;
 }
 
 .tab {

@@ -5,7 +5,7 @@
 				<td><label>Caption</label></td>
 				<td><input type="text" v-model="library.caption"></td>
 				<td><label>Id</label></td>
-				<td><input type="text" v-model="library.id"></td>
+				<td><input type="text" v-model.number="library.id"></td>
 				<td><label><input type="checkbox" v-model="library.advanced">Advanced</label></td>
 			</tr>
 		</table>
