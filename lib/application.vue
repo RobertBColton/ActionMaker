@@ -14,7 +14,7 @@
 				<span class="spacer"></span>
 
 				<div class="dropdown">
-					<button type="button" title="Save Library"><img src="icons/save.png"></button>
+					<button type="button" title="Save Library" @click="saveLibrary"><img src="icons/save.png"></button>
 					<div class="dropdown-content">
 						<a href="#">GameMaker (*.lib)</a>
 						<a href="#">LateralGM (*.lgl)</a>
@@ -73,22 +73,45 @@ export default {
 		},
 
 		openLibrary(merge) {
-			var element = document.getElementById('library-input');
 			this.mergeLibrary = merge;
-			element.click();
+			var el = document.getElementById('library-input');
+			el.value = null;
+			el.click();
 		},
 
 		librarySelected(evt) {
-			var files = evt.target.files;
+			var file = evt.target.files[0];
+			if (!file) return;
+			var reader = new FileReader();
 
-			Library.deserialize(files[0], (library) => {
+			reader.onload = (e) => {
+				var library = Library.deserialize(reader.result);
 				if (this.mergeLibrary) {
 					var a = this.library.actions, b = library.actions;
 					a.push.apply(a, b);
 				} else {
 					this.library = library;
 				}
-			});
+			}
+
+			reader.readAsArrayBuffer(file);
+		},
+
+		saveLibrary() {
+			var callback = function(data) {
+				var file = new Blob([data], {type: "octet/stream"});
+				var a = document.createElement("a"),
+					url = URL.createObjectURL(file);
+				a.href = url;
+				a.download = this.library.caption + ".lib";
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function() {
+					document.body.removeChild(a);
+					window.URL.revokeObjectURL(url);  
+				}, 0);
+			};
+			Library.serializeLGL(callback, this.library);
 		},
 
 		createId() {
@@ -96,15 +119,20 @@ export default {
 		},
 
 		loadInit() {
-			document.getElementById('init-input').click();
+			var el = document.getElementById('init-input');
+			el.value = null;
+			el.click();
 		},
 
 		loadInfo() {
-			document.getElementById('info-input').click();
+			var el = document.getElementById('info-input');
+			el.value = null;
+			el.click();
 		},
 
 		textFileSelected(evt) {
 			var file = evt.target.files[0];
+			if (!file) return;
 			var reader = new FileReader();
 
 			reader.onload = (e) => {

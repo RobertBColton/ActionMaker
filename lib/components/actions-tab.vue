@@ -248,11 +248,14 @@ export default {
 		},
 
 		openImage() {
-			document.getElementById('image-input').click();
+			var el = document.getElementById('image-input');
+			el.value = null;
+			el.click();
 		},
 
 		imageFileSelected(evt) {
 			var file = evt.target.files[0];
+			if (!file) return;
 			var reader = new FileReader();
 
 			reader.onload = (e) => {
