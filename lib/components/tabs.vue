@@ -58,7 +58,7 @@ export default {
 	border: 1px solid transparent;
 	outline: none;
 	cursor: pointer;
-	padding: 14px 16px;
+	padding: 6px 12px;
 	transition: 0.1s;
 }
 

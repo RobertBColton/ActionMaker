@@ -4,22 +4,36 @@
 			<h1>ActionMaker</h1>
 			<h3 class="hidden">Copyright © 2017, Robert Colton</h3>
 		</header>
+		<modal v-if="showNew" @closed="newLibrary">
+			<h3 slot="header">New Library</h3>
+			<p slot="body">
+				Are you sure you want to create a new library?<br>
+				Unsaved changes may be lost.
+			</p>
+		</modal>
+		<modal v-if="showSave" @closed="saveLibrary">
+			<h3 slot="header">Save Library</h3>
+			<table slot="body">
+				<tr>
+					<td><label>Format</label></td>
+					<td><combo :items="saveFormatList" v-model="saveFormat"/></td>
+				</tr>
+				<tr v-if="isSaveFormatLIB">
+					<td><label>Version</label></td>
+					<td><combo :items="saveVersionList" v-model="saveVersion"/></td>
+				</tr>
+			</table>
+		</modal>
 		<div id="ActionMaker">
 			<div class="toolbar etched-border" v-once>
-				<button type="button" title="New Library" @click="newLibrary"><img src="icons/new.png"></button>
+				<button type="button" title="New Library" @click="showNew = true"><img src="icons/new.png"></button>
 				<input id="library-input" class="hidden" type="file" accept=".lgl,.lib" @change="librarySelected">
 				<button type="button" title="Open Library" @click="openLibrary(false)"><img src="icons/open.png"></button>
 				<button type="button" title="Import Actions" @click="openLibrary(true)"><img src="icons/import.png"></button>
 
 				<span class="spacer"></span>
 
-				<div class="dropdown">
-					<button type="button" title="Save Library" @click="saveLibrary"><img src="icons/save.png"></button>
-					<div class="dropdown-content">
-						<a href="#">GameMaker (*.lib)</a>
-						<a href="#">LateralGM (*.lgl)</a>
-					</div>
-				</div>
+				<button type="button" title="Save Library" @click="showSave = true"><img src="icons/save.png"></button>
 
 				<span class="spacer"></span>
 
@@ -39,7 +53,7 @@
 </template>
 
 <script>
-import Library from './library.js';
+import Library, { LIB_FORMATS } from './library.js';
 
 import ActionsTab from './components/actions-tab.vue';
 import InfoTab from './components/info-tab.vue';
@@ -51,7 +65,19 @@ export default {
 	data() {
 		return {
 			primaryTabs: [ LibraryTab, InfoTab, ActionsTab ],
-			mergeLibrary: false
+			mergeLibrary: false,
+			showNew: false,
+			showSave: false,
+			saveFormatList: {
+				"GameMaker (*.lib)": LIB_FORMATS.LIB,
+				"LateralGM (*.lgl)": LIB_FORMATS.LGL
+			},
+			saveVersionList: {
+				"520": 520,
+				"500": 500
+			},
+			saveFormat: LIB_FORMATS.LIB,
+			saveVersion: 520
 		};
 	},
 
@@ -63,12 +89,18 @@ export default {
 			set(newValue) {
 				this.$root.library = newValue;
 			}
+		},
+
+		isSaveFormatLIB() {
+			return this.saveFormat === LIB_FORMATS.LIB;
 		}
 	},
 
 	methods: {
-		newLibrary() {
-			if (!confirm("Are you sure you want to create a new library?\nUnsaved changes will be lost.")) return;
+		newLibrary(accepted) {
+			this.showNew = false;
+			if (!accepted) return;
+
 			this.library = Library.newLibrary();
 		},
 
@@ -97,21 +129,29 @@ export default {
 			reader.readAsArrayBuffer(file);
 		},
 
-		saveLibrary() {
-			var callback = function(data) {
+		saveLibrary(accepted) {
+			this.showSave = false;
+			if (!accepted) return;
+
+			var callback = (data) => {
 				var file = new Blob([data], {type: "octet/stream"});
 				var a = document.createElement("a"),
 					url = URL.createObjectURL(file);
 				a.href = url;
-				a.download = this.library.caption + ".lib";
+				a.download = this.library.caption + '.' + this.saveFormat;
 				document.body.appendChild(a);
 				a.click();
 				setTimeout(function() {
 					document.body.removeChild(a);
-					window.URL.revokeObjectURL(url);  
+					window.URL.revokeObjectURL(url);
 				}, 0);
 			};
-			Library.serializeLGL(callback, this.library);
+			if (this.saveFormat === LIB_FORMATS.LGL) {
+				Library.serializeLGL(this.library, callback);
+			} else if (this.saveFormat === LIB_FORMATS.LIB) {
+				var data = Library.serializeLIB(this.library, this.saveVersion);
+				callback(data);
+			}
 		},
 
 		createId() {
@@ -209,6 +249,10 @@ tr {
 td {
 	text-align: right;
 	padding: 2px;
+}
+
+td > input {
+	width: 140px;
 }
 
 td > input, td > select {

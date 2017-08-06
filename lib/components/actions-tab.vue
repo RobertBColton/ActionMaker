@@ -1,16 +1,18 @@
 <template>
 	<div id="actions-tab">
 		<div class="flex-panel padded">
-			<div class="inline-flex" v-once>
+			<div class="inline-flex justify-center" v-once>
 				<button type="button" title="Insert New Action" @click="insertAction(selectedIndex)"><img src="icons/add.png"></button>
 				<button type="button" title="Delete" @click="deleteAction(selectedIndex)"><img src="icons/delete.png"></button>
 				<button type="button" title="Duplicate" @click="duplicateAction(selectedIndex)"><img src="icons/copy.png"></button>
 				<button type="button" title="Shift Up" @click="shiftUp(selectedIndex)"><img src="icons/up.png"></button>
 				<button type="button" title="Shift Down" @click="shiftDown(selectedIndex)"><img src="icons/down.png"></button>
 			</div>
-			<ul id="action-list" class="lv no-select" tabindex="0">
+			<ul id="action-list" class="lv" tabindex="0"
+				@cut.prevent="cutAction" @copy.prevent="copyAction" @paste.prevent="pasteAction" @keyup.delete="deleteAction(selectedIndex)">
 				<li v-for="(action,index) of actions"
 					:class="{ 'active': (index === selectedIndex) }"
+					
 					@click="selectedIndex = index">
 					<span class="icon-preview" :style="{ 'background-image': 'url(' + action.image + ')' }"></span>
 					{{action.name}}
@@ -210,9 +212,9 @@ export default {
 	},
 
 	methods: {
-		insertAction(index = this.selectedIndex) {
+		insertAction(index = this.selectedIndex, action = Library.newAction(this.library)) {
 			if (index < 0) index = this.actions.length;
-			this.actions.splice(index, 0, Library.newAction(this.library));
+			this.actions.splice(index, 0, action);
 		},
 
 		deleteAction(index = this.selectedIndex) {
@@ -224,6 +226,26 @@ export default {
 			var clone = Object.assign({}, this.actions[index]);
 			this.actions.splice(index, 0, clone);
 			this.selectedIndex += 1;
+		},
+
+		cutAction(evt) {
+			this.copyAction(evt);
+			this.deleteAction();
+		},
+
+		copyAction(evt) {
+			var act = this.selectedAction;
+			var replacer = function(key, value) {
+				if (key === "parent") return;
+				return value;
+			};
+			evt.clipboardData.setData("application/json", JSON.stringify(act, replacer));
+		},
+
+		pasteAction(evt) {
+			var act = JSON.parse(evt.clipboardData.getData("application/json"));
+			act.parent = this.library;
+			this.insertAction(undefined, act);
 		},
 
 		moveAction(one, two) {
@@ -278,7 +300,7 @@ export default {
 }
 
 #action-list {
-	width: 100%;
+	width: 160px;
 	flex: 1 1 512px;
 }
 
