@@ -1,4 +1,4 @@
-node_modules/
+node_modules/*
+!node_modules/monaco-editor/
 npm-debug.log
 *.log
-bin/
