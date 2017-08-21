@@ -14,7 +14,7 @@
 		<script>
 			require.config({ paths: { 'vs': './node_modules/monaco-editor/min/vs' }});
 			require(['vs/editor/editor.main'], function() {
-				var editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+				const editor = monaco.editor.create(document.getElementById('monaco-editor'), {
 					value: [
 						'/**',
 						' * This code will be executed when your library is loaded.',

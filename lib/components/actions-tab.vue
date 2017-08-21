@@ -4,25 +4,33 @@
 			<div class="inline-flex justify-center" v-once>
 				<button type="button" title="Insert New Action" @click="insertAction(selectedIndex)"><img src="icons/add.png"></button>
 				<button type="button" title="Delete" @click="deleteAction(selectedIndex)"><img src="icons/delete.png"></button>
-				<button type="button" title="Duplicate" @click="duplicateAction(selectedIndex)"><img src="icons/copy.png"></button>
-				<button type="button" title="Shift Up" @click="shiftUp(selectedIndex)"><img src="icons/up.png"></button>
-				<button type="button" title="Shift Down" @click="shiftDown(selectedIndex)"><img src="icons/down.png"></button>
+				<button type="button" title="Cut" @click="cutAction" :disabled="!isCutCommandSupported"><img src="icons/cut.png"></button>
+				<button type="button" title="Copy" @click="copyAction" :disabled="!isCopyCommandSupported"><img src="icons/copy.png"></button>
+				<button type="button" title="Paste" @click="pasteAction" :disabled="!isPasteCommandSupported"><img src="icons/paste.png"></button>
 			</div>
-			<ul id="action-list" class="lv" tabindex="0"
-				@cut.prevent="cutAction" @copy.prevent="copyAction" @paste.prevent="pasteAction" @keyup.delete="deleteAction(selectedIndex)">
-				<li v-for="(action,index) of actions"
-					:class="{ 'active': (index === selectedIndex) }"
-					
-					@click="selectedIndex = index">
-					<span class="icon-preview" :style="{ 'background-image': 'url(' + action.image + ')' }"></span>
-					{{action.name}}
-				</li>
-			</ul>
+			<div id="action-list" class="lv no-select" tabindex="0"
+				 @keyup.delete="deleteAction(selectedIndex)"
+				 @keydown.up.prevent="actionListPrevious"
+				 @keydown.down.prevent="actionListNext"
+				 @drop="actionListDrop"
+				 @cut.prevent="cut" @copy.prevent="copy" @paste.prevent="paste">
+				<ul>
+					<li v-for="(action,index) of actions"
+						:title="action.name" draggable="true"
+						:class="{ 'active': (index === selectedIndex) }"
+						@dragstart="actionListDragStart($event, index)"
+						@dragover.prevent="dragIndex = index"
+						@click="actionListItemClicked($event, index)">
+						<span class="icon-preview" :style="{ 'background-image': 'url(' + action.image + ')' }"></span>
+						{{action.name}}
+					</li>
+				</ul>
+			</div>
 		</div>
-		<div class="flex-panel padded" v-if="selectedAction">
+		<div class="flex-panel padded grow" v-if="selectedAction">
 			<fieldset>
 				<legend>General Action Properties</legend>
-				<table>
+				<table class="expand-last-column">
 					<tr>
 						<td><label>Name</label></td>
 						<td><input type="text" v-model="selectedAction.name"></td>
@@ -72,7 +80,7 @@
 			</fieldset>
 			<fieldset v-show="isSelectedNormal">
 				<legend>Interface</legend>
-				<table class="padded">
+				<table>
 					<tr>
 						<td><label>Kind</label></td>
 						<td><combo :items="ifaceList" v-model="selectedAction.ifaceKind"/></td>
@@ -92,7 +100,7 @@
 						</td>
 					</tr>
 				</table>
-				<table class="padded" v-if="selectedHasArguments">
+				<table class="expand-last-column" v-if="selectedHasArguments">
 					<tr v-for="arg of selectedArguments">
 						<td><input type="text" v-model="arg.caption"></td>
 						<td><combo :items="argKindList" v-model="arg.kind"/></td>
@@ -122,6 +130,7 @@ export default {
 	data() {
 		return {
 			selectedIndex: -1,
+			dragIndex: -1,
 			kindList: {
 				"Normal": ACT_KINDS.NORMAL,
 				"Begin Group": ACT_KINDS.BEGIN_GROUP,
@@ -169,6 +178,23 @@ export default {
 	},
 
 	computed: {
+		isCutCommandSupported() {
+			return document.queryCommandSupported('cut');
+		},
+
+		isCopyCommandSupported() {
+			return document.queryCommandSupported('copy');
+		},
+
+		isPasteCommandSupported() {
+			try {
+				return document.queryCommandSupported('paste');
+			} catch (err) {
+				return false;
+			}
+			
+		},
+
 		library() {
 			this.selectedIndex = -1;
 			return this.$root.library;
@@ -203,7 +229,7 @@ export default {
 				return this.selectedAction.argnum;
 			},
 			set(newValue) {
-				var el = document.getElementById("argnum");
+				const el = document.getElementById("argnum");
 				if (el.checkValidity()) {
 					this.selectedAction.argnum = newValue;
 				}
@@ -212,73 +238,126 @@ export default {
 	},
 
 	methods: {
+		scrollTo(parent, target) {
+			const targetTop = target.offsetTop - parent.offsetTop;
+			const targetBottom = targetTop + target.clientHeight;
+			const wrapperBottom = parent.scrollTop + parent.clientHeight;
+			if (targetTop < parent.scrollTop) {
+				parent.scrollTop = targetTop;
+			} else if (targetBottom >= wrapperBottom) {
+				parent.scrollTop = targetBottom - parent.clientHeight;
+			}
+		},
+
+		actionListPrevious(evt) {
+			if (this.selectedIndex < 1) return;
+			const list = evt.target;
+			const selected = list.getElementsByClassName("active")[0];
+			this.scrollTo(list, selected.previousSibling);
+			this.selectedIndex--;
+		},
+
+		actionListNext(evt) {
+			if (this.selectedIndex >= this.actions.length - 1) return;
+			const list = evt.target;
+			const selected = list.getElementsByClassName("active")[0];
+			this.scrollTo(list, selected.nextSibling);
+			this.selectedIndex++;
+		},
+
+		actionListItemClicked(evt, index) {
+			//evt.target.focus(); out because prev/next
+			this.selectedIndex = index;
+			//const node = document.getElementById('action-list');
+			//node.focus();
+			//window.getSelection().collapse(node);
+			//document.getSelection().collapse(node);
+			//evt.preventDefault();
+			//evt.stopPropagation();
+			//return false;
+		},
+
 		insertAction(index = this.selectedIndex, action = Library.newAction(this.library)) {
 			if (index < 0) index = this.actions.length;
 			this.actions.splice(index, 0, action);
 		},
 
 		deleteAction(index = this.selectedIndex) {
+			if (index < 0) return;
 			if (this.selectedIndex >= this.actions.length - 1) this.selectedIndex -= 1;
 			this.actions.splice(index, 1);
 		},
 
-		duplicateAction(index = this.selectedIndex) {
-			var clone = Object.assign({}, this.actions[index]);
-			this.actions.splice(index, 0, clone);
-			this.selectedIndex += 1;
-		},
-
-		cutAction(evt) {
-			this.copyAction(evt);
-			this.deleteAction();
-		},
-
-		copyAction(evt) {
-			var act = this.selectedAction;
-			var replacer = function(key, value) {
+		stringifyAction(act) {
+			const replacer = function(key, value) {
 				if (key === "parent") return;
 				return value;
 			};
-			evt.clipboardData.setData("application/json", JSON.stringify(act, replacer));
+			return JSON.stringify(act, replacer);
 		},
 
-		pasteAction(evt) {
-			var act = JSON.parse(evt.clipboardData.getData("application/json"));
+		actionListDragStart(evt, index) {
+			this.selectedIndex = index;
+			evt.dataTransfer.setData("application/json", this.stringifyAction(this.selectedAction));
+		},
+
+		actionListDragOver(evt) {
+
+		},
+
+		actionListDrop(evt) {
+			const act = JSON.parse(evt.dataTransfer.getData("application/json"));
+			act.parent = this.library;
+			this.deleteAction(this.selectedIndex);
+			this.insertAction(this.selectedIndex = this.dragIndex, act);
+		},
+
+		cut(evt) {
+			if (this.selectedIndex < 0) return;
+			this.copy(evt);
+			this.deleteAction();
+		},
+
+		copy(evt) {
+			if (this.selectedIndex < 0) return;
+			evt.clipboardData.setData("application/json", this.stringifyAction(this.selectedAction));
+		},
+
+		paste(evt) {
+			alert("heller");
+			const act = JSON.parse(evt.clipboardData.getData("application/json"));
 			act.parent = this.library;
 			this.insertAction(undefined, act);
 		},
 
-		moveAction(one, two) {
-			if (two < 0 || two >= this.actions.length) {
-				two = mod(two, this.actions.length);
-				var temp = this.actions.splice(one, 1)[0];
-				this.actions.splice(two, 0, temp);
-			} else {
-				var temp = this.actions[one];
-				this.actions[one] = this.actions[two];
-				this.actions.splice(two, 1, temp);
-			}
-			return two;
+		cutAction() {
+			const el = document.getElementById('action-list');
+			el.focus();
+			document.execCommand('cut');
 		},
 
-		shiftUp(index = this.selectedIndex) {
-			this.selectedIndex = this.moveAction(index, index - 1);
+		copyAction() {
+			const el = document.getElementById('action-list');
+			el.focus();
+			document.execCommand('copy');
 		},
 
-		shiftDown(index = this.selectedIndex) {
-			this.selectedIndex = this.moveAction(index, index + 1);
+		pasteAction() {
+			const el = document.getElementById('action-list');
+			el.focus();
+			document.execCommand('paste');
 		},
 
 		openImage() {
-			var el = document.getElementById('image-input');
+			const el = document.getElementById('image-input');
 			el.value = null;
 			el.click();
 		},
 
 		imageFileSelected(evt) {
-			var file = evt.target.files[0];
+			const file = evt.target.files[0];
 			if (!file) return;
-			var reader = new FileReader();
+			const reader = new FileReader();
 
 			reader.onload = (e) => {
 				this.selectedAction.image = e.target.result;
@@ -308,29 +387,34 @@ export default {
 	cursor: pointer;
 	overflow: auto;
 	background-color: white;
-	list-style: none;
 	border: 1px solid gray;
-	padding-left: 0;
-	margin: 0;
 }
 
-.lv > li {
+.lv ul {
+	list-style: none;
+	padding-left: 0;
+	margin: 0;
+	min-width: 100%;
+	display: inline-block;
+}
+
+.lv li {
 	white-space: nowrap;
 	padding: 1px;
 }
 
-.lv > li > .icon-preview {
+.lv li > .icon-preview {
 	width: 24px;
 	height: 24px;
 	display: inline-block;
 	vertical-align: middle;
 }
 
-.lv > li:hover {
+.lv li:hover {
 	background-color: lightgray;
 }
 
-.lv > li.active {
+.lv li.active {
 	background-color: Highlight;
 	color: HighlightText;
 }

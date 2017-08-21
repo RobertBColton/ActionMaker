@@ -41,6 +41,8 @@ export default {
 /* We want our tabs to fill the height of this component by default */
 .tab {
 	flex: 1;
+	display: flex;
+	flex-flow: column;
 }
 
  /* Style the tab header area */

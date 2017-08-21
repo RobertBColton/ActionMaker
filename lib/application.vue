@@ -1,5 +1,5 @@
 <template>
-	<div id="content">
+	<div id="content" class="system-ui">
 		<header v-once>
 			<h1>ActionMaker</h1>
 			<h3 class="hidden">Copyright © 2017, Robert Colton</h3>
@@ -106,20 +106,20 @@ export default {
 
 		openLibrary(merge) {
 			this.mergeLibrary = merge;
-			var el = document.getElementById('library-input');
+			const el = document.getElementById('library-input');
 			el.value = null;
 			el.click();
 		},
 
 		librarySelected(evt) {
-			var file = evt.target.files[0];
+			const file = evt.target.files[0];
 			if (!file) return;
-			var reader = new FileReader();
+			const reader = new FileReader();
 
 			reader.onload = (e) => {
-				var library = Library.deserialize(reader.result);
+				const library = Library.deserialize(reader.result);
 				if (this.mergeLibrary) {
-					var a = this.library.actions, b = library.actions;
+					const a = this.library.actions, b = library.actions;
 					a.push.apply(a, b);
 				} else {
 					this.library = library;
@@ -133,9 +133,9 @@ export default {
 			this.showSave = false;
 			if (!accepted) return;
 
-			var callback = (data) => {
-				var file = new Blob([data], {type: "octet/stream"});
-				var a = document.createElement("a"),
+			const callback = (data) => {
+				const file = new Blob([data], {type: "octet/stream"});
+				const a = document.createElement("a"),
 					url = URL.createObjectURL(file);
 				a.href = url;
 				a.download = this.library.caption + '.' + this.saveFormat;
@@ -149,7 +149,7 @@ export default {
 			if (this.saveFormat === LIB_FORMATS.LGL) {
 				Library.serializeLGL(this.library, callback);
 			} else if (this.saveFormat === LIB_FORMATS.LIB) {
-				var data = Library.serializeLIB(this.library, this.saveVersion);
+				const data = Library.serializeLIB(this.library, this.saveVersion);
 				callback(data);
 			}
 		},
@@ -159,21 +159,21 @@ export default {
 		},
 
 		loadInit() {
-			var el = document.getElementById('init-input');
+			const el = document.getElementById('init-input');
 			el.value = null;
 			el.click();
 		},
 
 		loadInfo() {
-			var el = document.getElementById('info-input');
+			const el = document.getElementById('info-input');
 			el.value = null;
 			el.click();
 		},
 
 		textFileSelected(evt) {
-			var file = evt.target.files[0];
+			const file = evt.target.files[0];
 			if (!file) return;
-			var reader = new FileReader();
+			const reader = new FileReader();
 
 			reader.onload = (e) => {
 				if (evt.target.id === 'init-input') {
@@ -233,13 +233,7 @@ header > * {
 	flex-flow: column;
 	background-color: #fafafa;
 	border: 1px solid black;
-	font-family: 'Segoe UI', 'Helvetica Neue', 'San Fransicso', 'Lucida Grande', sans-serif;
 	font-size: 11pt;
-}
-
-.tab {
-	display: flex;
-	flex-flow: column;
 }
 
 tr {

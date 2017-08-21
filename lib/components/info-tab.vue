@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<table id="info-table" class="padded">
+		<table class="padded expand-last-column">
 			<tr>
 				<td><label>Author</label></td>
 				<td><input type="text" v-model="library.author"></td>
@@ -36,9 +36,5 @@ export default {
 .info-textarea {
 	height: 512px;
 	resize: vertical;
-}
-
-#info-table td:last-child {
-	width: 100%;
 }
 </style>

@@ -1,5 +1,11 @@
-
 /* Generic styles and simple toggles... */
+.system-ui {
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 
+		"Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", 
+		"Fira Sans", "Droid Sans", "Helvetica Neue", 
+		sans-serif;
+}
+
 .etched-border {
 	border-color: #dfdfdf #bebebe #bebebe #dfdfdf;
 	border-style: solid;
@@ -34,6 +40,14 @@
 
 .justify-center {
 	justify-content: center;
+}
+
+.expand-last-column td:last-child {
+	width: 100%;
+}
+
+.grow {
+	flex-grow: 1;
 }
 
 /* Generic display styles... */
