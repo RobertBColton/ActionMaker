@@ -109,6 +109,10 @@
 					</tr>
 				</table>
 			</fieldset>
+			<fieldset v-if="isSelectedNormal && isSelectedCode">
+				<legend>Execution Code</legend>
+				<monaco id="exec-code" class="code-editor etched-border" v-model="selectedAction.execInfo" language="javascript"/>
+			</fieldset>
 		</div>
 	</div>
 </template>
@@ -131,6 +135,7 @@ export default {
 		return {
 			selectedIndex: -1,
 			dragIndex: -1,
+			showCode: false,
 			kindList: {
 				"Normal": ACT_KINDS.NORMAL,
 				"Begin Group": ACT_KINDS.BEGIN_GROUP,
@@ -218,6 +223,10 @@ export default {
 
 		isSelectedFunction() {
 			return this.selectedAction.execType === ACT_EXEC_TYPES.FUNCTION;
+		},
+
+		isSelectedCode() {
+			return this.selectedAction.execType === ACT_EXEC_TYPES.CODE;
 		},
 
 		selectedHasArguments() {
@@ -381,6 +390,10 @@ export default {
 #action-list {
 	width: 160px;
 	flex: 1 1 512px;
+}
+
+#exec-code {
+	min-height: 256px;
 }
 
 .lv {

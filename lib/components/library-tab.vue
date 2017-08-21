@@ -9,7 +9,7 @@
 				<td><label><input type="checkbox" v-model="library.advanced">Advanced</label></td>
 			</tr>
 		</table>
-		<div id="monaco-editor"></div>
+		<monaco class="code-editor etched-border" v-model="library.init" language="javascript"/>
 	</div>
 </template>
 

@@ -10,7 +10,7 @@
 				<td><input type="text" :value="lastChanged" disabled></td>
 			</tr>
 		</table>
-		<textarea class="info-textarea" v-model="library.info"></textarea>
+		<monaco class="code-editor etched-border" v-model="library.info"/>
 	</div>
 </template>
 

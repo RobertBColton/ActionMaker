@@ -1,4 +1,5 @@
 import vue from 'rollup-plugin-vue';
+import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import css from 'rollup-plugin-css-only';
 import replace from 'rollup-plugin-replace';
@@ -21,6 +22,9 @@ export default {
 		vue({styleToImports: true}),
 		css({output: 'bin/index.css'}),
 		resolve(),
+		commonjs({
+			sourceMap: false
+		}),
 		replace({
 			'process.env.NODE_ENV': JSON.stringify( 'development' )
 		})

@@ -258,7 +258,7 @@ td > label {
 	text-align: right;
 }
 
-#monaco-editor {
+.code-editor {
 	min-height: 512px;
 }
 </style>

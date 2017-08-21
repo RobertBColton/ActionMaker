@@ -9,26 +9,10 @@
 	</head>
 	<body>
 		<div id="application"></div>
-		<script type="text/javascript" src="./bin/index.js"></script>
 		<script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
 		<script>
 			require.config({ paths: { 'vs': './node_modules/monaco-editor/min/vs' }});
-			require(['vs/editor/editor.main'], function() {
-				const editor = monaco.editor.create(document.getElementById('monaco-editor'), {
-					value: [
-						'/**',
-						' * This code will be executed when your library is loaded.',
-						' */',
-						'{',
-						'\t// say something',
-						'\tshow_message("Hello, ActionMaker Library!");',
-						'}',
-						''
-					].join('\n'),
-					language: 'javascript',
-					theme: "vs-dark"
-				});
-			});
 		</script>
+		<script type="text/javascript" src="./bin/index.js"></script>
 	</body>
 </html>
