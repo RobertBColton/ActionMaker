@@ -212,7 +212,7 @@ header {
 }
 
 header > * {
-	font-family: Verdana;
+	font-family: Arial, Helvetica;
 	font-weight: 900;
 	color: white;
 	text-shadow:	0 3px 0 hsl(174,5%,0%),
