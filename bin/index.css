@@ -910,21 +910,6 @@ td > label {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #actions-tab {
 	flex-flow: row;
 }
@@ -965,7 +950,7 @@ td > label {
 	vertical-align: middle;
 }
 
-.lv li:hover {
+.lv li:hover, .lv li.hover {
 	background-color: lightgray;
 }
 
