@@ -13,14 +13,15 @@
 				 @keydown.up.prevent="actionListPrevious"
 				 @keydown.down.prevent="actionListNext"
 				 @drop="actionListDrop"
+				 @dragend="dragIndex = -1"
 				 @cut.prevent="cut" @copy.prevent="copy" @paste.prevent="paste">
 				<ul>
 					<li v-for="(action,index) of actions"
 						:title="action.name" draggable="true"
-						:class="{ 'active': (index === selectedIndex) }"
+						:class="{ 'active': (index === selectedIndex), 'hover': (index === dragIndex) }"
 						@dragstart="actionListDragStart($event, index)"
 						@dragover.prevent="dragIndex = index"
-						@click="actionListItemClicked($event, index)">
+						@click="selectedIndex = index">
 						<span class="icon-preview" :style="{ 'background-image': 'url(' + action.image + ')' }"></span>
 						{{action.name}}
 					</li>
@@ -274,18 +275,6 @@ export default {
 			this.selectedIndex++;
 		},
 
-		actionListItemClicked(evt, index) {
-			//evt.target.focus(); out because prev/next
-			this.selectedIndex = index;
-			//const node = document.getElementById('action-list');
-			//node.focus();
-			//window.getSelection().collapse(node);
-			//document.getSelection().collapse(node);
-			//evt.preventDefault();
-			//evt.stopPropagation();
-			//return false;
-		},
-
 		insertAction(index = this.selectedIndex, action = Library.newAction(this.library)) {
 			if (index < 0) index = this.actions.length;
 			this.actions.splice(index, 0, action);
@@ -308,10 +297,7 @@ export default {
 		actionListDragStart(evt, index) {
 			this.selectedIndex = index;
 			evt.dataTransfer.setData("application/json", this.stringifyAction(this.selectedAction));
-		},
-
-		actionListDragOver(evt) {
-
+			evt.dataTransfer.effectAllowed = "move";
 		},
 
 		actionListDrop(evt) {
@@ -333,7 +319,6 @@ export default {
 		},
 
 		paste(evt) {
-			alert("heller");
 			const act = JSON.parse(evt.clipboardData.getData("application/json"));
 			act.parent = this.library;
 			this.insertAction(undefined, act);
@@ -423,7 +408,7 @@ export default {
 	vertical-align: middle;
 }
 
-.lv li:hover {
+.lv li:hover, .lv li.hover {
 	background-color: lightgray;
 }
 
