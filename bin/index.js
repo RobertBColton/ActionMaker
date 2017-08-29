@@ -7500,15 +7500,40 @@ var MonacoEditor$1 = {
 
     window.require(['vs/editor/editor.main'], function () {
       this$1.editor = window.monaco.editor.create(this$1.$el, options);
+      this$1.$emit('editorMount', this$1.editor);
+      this$1.editor.onContextMenu(function (event) { return this$1.$emit('contextMenu', event); });
+      this$1.editor.onDidBlurEditor(function () { return this$1.$emit('blur'); });
+      this$1.editor.onDidBlurEditorText(function () { return this$1.$emit('blurText'); });
+      this$1.editor.onDidChangeConfiguration(function (event) { return this$1.$emit('configuration', event); }
+      );
+      this$1.editor.onDidChangeCursorPosition(function (event) { return this$1.$emit('position', event); }
+      );
+      this$1.editor.onDidChangeCursorSelection(function (event) { return this$1.$emit('selection', event); }
+      );
+      this$1.editor.onDidChangeModel(function (event) { return this$1.$emit('model', event); });
       this$1.editor.onDidChangeModelContent(function (event) {
-        this$1.$emit('change', this$1.editor.getValue(), event);
+        var value = this$1.editor.getValue();
+        if (this$1.value !== value) {
+          this$1.$emit('change', value, event);
+        }
       });
-      this$1.editor.onDidFocusEditor(function () {
-        this$1.$emit('focus');
-      });
-      this$1.editor.onDidBlurEditor(function () {
-        this$1.$emit('blur');
-      });
+      this$1.editor.onDidChangeModelDecorations(function (event) { return this$1.$emit('modelDecorations', event); }
+      );
+      this$1.editor.onDidChangeModelLanguage(function (event) { return this$1.$emit('modelLanguage', event); }
+      );
+      this$1.editor.onDidChangeModelOptions(function (event) { return this$1.$emit('modelOptions', event); }
+      );
+      this$1.editor.onDidDispose(function (event) { return this$1.$emit('afterDispose', event); });
+      this$1.editor.onDidFocusEditor(function () { return this$1.$emit('focus'); });
+      this$1.editor.onDidFocusEditorText(function () { return this$1.$emit('focusText'); });
+      this$1.editor.onDidLayoutChange(function (event) { return this$1.$emit('layout', event); });
+      this$1.editor.onDidScrollChange(function (event) { return this$1.$emit('scroll', event); });
+      this$1.editor.onKeyDown(function (event) { return this$1.$emit('keydown', event); });
+      this$1.editor.onKeyUp(function (event) { return this$1.$emit('keyup', event); });
+      this$1.editor.onMouseDown(function (event) { return this$1.$emit('mouseDown', event); });
+      this$1.editor.onMouseLeave(function (event) { return this$1.$emit('mouseLeave', event); });
+      this$1.editor.onMouseMove(function (event) { return this$1.$emit('mouseMove', event); });
+      this$1.editor.onMouseUp(function (event) { return this$1.$emit('mouseUp', event); });
     });
   },
 
@@ -7538,7 +7563,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 var vueMonaco_common = MonacoEditor$1;
 
 function Encoder() {
-	this.data = new Uint8Array(1000000);
+	this.data = new Uint8Array(10000000);
 	this.i = 0;
 }
 
@@ -7683,6 +7708,12 @@ const LIB_FORMATS = {
 const OAEpoch = Date.UTC(1899, 11, 30) + (new Date().getTimezoneOffset() * 60 * 1000);
 const msInDay = 24 * 60 * 60 * 1000;
 
+const DEFAULT_IMAGE = "icons/blank-tile.png";
+
+function actKindHasImage(kind) {
+	return (kind != ACT_KINDS.PLACEHOLDER && kind != ACT_KINDS.SEPARATOR && kind != ACT_KINDS.LABEL);
+}
+
 const STR_EMPTY = new String();
 
 var Library = {
@@ -7744,7 +7775,7 @@ var Library = {
 			parent: library,
 			name: "Action " + library.actions.length,
 			id: library.actions.length,
-			image: 'icons/blank-tile.png',
+			image: DEFAULT_IMAGE,
 			hidden: false,
 			advanced: false,
 			registered: false,
@@ -7769,9 +7800,7 @@ var Library = {
 
 	deserializeLIB(data, version) {
 		const ver = data[3];
-		if (ver) {
-			throw "Expected 0 @ 3 got " + ver;
-		}
+		if (ver) throw "Expected 0 @ 3 got " + ver;
 		const lib = { };
 		const decoder = new Decoder(data, 4);
 
@@ -7788,9 +7817,7 @@ var Library = {
 		lib.actions = [];
 		for (let i = 0; i < acts; i++) {
 			const ver = decoder.read4();
-			if (ver != 500 && ver != 520) {
-				throw "Action #" + i + " failed to have 500 or 520 got " + ver;
-			}
+			if (ver != 500 && ver != 520) throw "Action #" + i + " failed to have 500 or 520 got " + ver;
 			const act = { parent: lib };
 			lib.actions.push(act);
 
@@ -7858,13 +7885,12 @@ var Library = {
 			let i = 0;
 			const columns = img.width / 24;
 			for (act of lib.actions) {
-				const kind = act.kind;
-				if (kind != ACT_KINDS.PLACEHOLDER && kind != ACT_KINDS.SEPARATOR && kind != ACT_KINDS.LABEL) {
+				if (actKindHasImage(act.kind)) {
 					ctx.drawImage(img, 24 * (i % columns), 24 * ((i / columns)|0), 24, 24, 0, 0, 24, 24);
 					act.image = canvas.toDataURL();
 					++i;
 				} else {
-					act.image = "icons/blank-tile.png";
+					act.image = DEFAULT_IMAGE;
 				}
 			}
 		};
@@ -7875,9 +7901,7 @@ var Library = {
 
 	deserializeLGL(data) {
 		const ver = (data[3] | data[4] << 8);
-		if (ver != 160) {
-			throw "Expected 160 @ 3 got " + ver;
-		}
+		if (ver != 160) throw "Expected 160 @ 3 got " + ver;
 		const lib = { };
 		const decoder = new Decoder(data, 5);
 
@@ -7894,9 +7918,7 @@ var Library = {
 		lib.actions = [];
 		for (let i = 0; i < acts; i++) {
 			const ver = decoder.read2();
-			if (ver != 160) {
-				throw "Action #" + i + " failed to have 160 got " + ver;
-			}
+			if (ver != 160) throw "Action #" + i + " failed to have 160 got " + ver;
 			const act = { parent: lib, image: undefined };
 			lib.actions.push(act);
 
@@ -7939,13 +7961,12 @@ var Library = {
 	deserialize(data) {
 		data = new Uint8Array(data);
 		const header = data[0] | data[1] << 8 | data[2] << 16;
-		if (header == 500 || header == 520) {
+		if (header == 500 || header == 520)
 			return this.deserializeLIB(data, header);
-		} else if (header == 4998988) {
+		else if (header == 4998988)
 			return this.deserializeLGL(data);
-		} else {
+		else
 			throw "Unknown header: " + header;
-		}
 	},
 
 	serializeLIB(lib, ver) {
@@ -8012,30 +8033,27 @@ var Library = {
 
 	saveLGLIcons(lib, callback, columns = 0) {
 		let actnum = 0;
-		for (act of lib.actions) {
-			const k = act.kind;
-			if (k != ACT_KINDS.PLACEHOLDER && k != ACT_KINDS.SEPARATOR && k != ACT_KINDS.LABEL)
-				actnum++;
-		}
-		if (!columns) {
-			columns = Math.floor(Math.sqrt(actnum)); 
-		}
+		for (act of lib.actions) if (actKindHasImage(act.kind)) ++actnum;
+		if (!columns) columns = Math.floor(Math.sqrt(actnum)); 
 		const rows = Math.ceil(actnum / columns);
 
 		const canvas = document.createElement("canvas");
 		canvas.width = columns * 24;
 		canvas.height = rows * 24;
 		const ctx = canvas.getContext("2d");
-		ctx.globalCompositeOperation = "copy";
 
-		let i = 0;
+		let i = 0, l = 0;
 		for (act of lib.actions) {
-			const k = act.kind;
-			if (k != ACT_KINDS.PLACEHOLDER && k != ACT_KINDS.SEPARATOR && k != ACT_KINDS.LABEL)
-				ctx.drawImage(act.image, 24 * (i % columns), 24 * ((i / columns)|0));
+			if (!actKindHasImage(act.kind)) continue;
+			const j = i++;
+			const img = new Image();
+			img.crossOrigin = "Anonymous";
+			img.onload = function() {
+				ctx.drawImage(img, 0, 0, 24, 24, 24 * (j % columns), 24 * ((j / columns)|0), 24, 24);
+				if (++l === actnum) canvas.toBlob(callback, "image/png");
+			};
+			img.src = act.image;
 		}
-
-		canvas.toBlob(callback, "image/png");
 	},
 
 	serializeLGL(lib, callback, columns = 0) {
@@ -8096,8 +8114,12 @@ var Library = {
 		}
 
 		this.saveLGLIcons(lib, function(blob) {
-			encoder.writeStr(blob);
-			callback(encoder.data.slice(0, encoder.i));
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				encoder.writeStr(reader.result);
+				callback(encoder.data.slice(0, encoder.i));
+			};
+			reader.readAsBinaryString(blob);
 		}, columns);
 	}
 };
