@@ -7969,7 +7969,7 @@ var Library = {
 			throw "Unknown header: " + header;
 	},
 
-	serializeLIB(lib, ver) {
+	serializeLIB(lib, callback, ver = 520) {
 		const encoder = new Encoder();
 		ver = ver >= 520 ? 520 : 500;
 		encoder.write4(ver);
@@ -7985,50 +7985,90 @@ var Library = {
 
 		encoder.write4(lib.actions.length); // no of actions/official lib identifier thingy
 		encoder.write4(lib.actions.length);
-		for (act of lib.actions) {
-			encoder.write4(ver);
-			encoder.writeStr4(act.name);
-			encoder.write4(act.id);
 
-			encoder.writeStr4(act.image);
+		const images = [];
+		let l = 0;
+		for (let i = 0; i < lib.actions.length; ++i) {
+			const act = lib.actions[i];
 
-			encoder.writeBool(act.hidden);
-			encoder.writeBool(act.advanced);
-			if (ver == 520) encoder.writeBool(act.registered);
-			encoder.writeStr4(act.description);
-			encoder.writeStr4(act.list);
-			encoder.writeStr4(act.hint);
-			encoder.write4(act.kind);
-			encoder.write4(act.ifaceKind);
-			encoder.writeBool(act.question);
-			encoder.writeBool(act.apply);
-			encoder.writeBool(act.relative);
-			encoder.write4(act.argnum);
-			encoder.write4(8); //8 vs act.argNum vs MAX_ARGS?
+			const imageLoaded = function(blob) {
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					images[i] = reader.result;
+					if (++l === lib.actions.length) {
+						allImagesLoaded(images);
+					}
+				};
+				reader.readAsBinaryString(blob);
+			};
 
-			//This always writes MAX_ARGS arguments. Alternatively, we could just write
-			//argNum arguments, and truncate the remaining invisible/unused arguments.
-			for (arg of act.args) {
-				encoder.writeStr4(arg.caption);
-				encoder.write4(arg.kind);
-				encoder.writeStr4(arg.default);
-				encoder.writeStr4(arg.options);
-			}
-			for (let k = act.args.length; k < 8; k++) {
-				encoder.writeStr4(STR_EMPTY);
-				encoder.write4(0);
-				encoder.writeStr4(STR_EMPTY);
-				encoder.writeStr4(STR_EMPTY);
-			}
+			const canvas = document.createElement("canvas");
+			canvas.width = 32;
+			canvas.height = 32;
+			const ctx = canvas.getContext("2d");
+			ctx.globalCompositeOperation = "copy";
 
-			const execType = act.execType;
-			const execInfo = act.execInfo;
-			encoder.write4(execType);
-			encoder.writeStr4(execType === ACT_EXEC_TYPES.FUNCTION ? execInfo : STR_EMPTY);
-			encoder.writeStr4(execType === ACT_EXEC_TYPES.CODE ? execInfo : STR_EMPTY);
+			const img = new Image();
+			img.crossOrigin = "Anonymous";
+			img.onload = function() {
+				ctx.drawImage(img, 0, 0);
+				if (canvas.msToBlob) {
+					const blob = canvas.msToBlob("image/bmp");
+					imageLoaded(blob);
+				} else {
+					canvas.toBlob(imageLoaded, "image/bmp");
+				}
+			};
+			img.src = act.image;
 		}
 
-		return encoder.data.slice(0, encoder.i);
+		const allImagesLoaded = function(images) {
+			for (let i = 0; i < lib.actions.length; ++i) {
+				const act = lib.actions[i];
+				encoder.write4(ver);
+				encoder.writeStr4(act.name);
+				encoder.write4(act.id);
+
+				encoder.writeStr4(images[i]);
+	
+				encoder.writeBool(act.hidden);
+				encoder.writeBool(act.advanced);
+				if (ver == 520) encoder.writeBool(act.registered);
+				encoder.writeStr4(act.description);
+				encoder.writeStr4(act.list);
+				encoder.writeStr4(act.hint);
+				encoder.write4(act.kind);
+				encoder.write4(act.ifaceKind);
+				encoder.writeBool(act.question);
+				encoder.writeBool(act.apply);
+				encoder.writeBool(act.relative);
+				encoder.write4(act.argnum);
+				encoder.write4(8); //8 vs act.argNum vs MAX_ARGS?
+	
+				//This always writes MAX_ARGS arguments. Alternatively, we could just write
+				//argNum arguments, and truncate the remaining invisible/unused arguments.
+				for (arg of act.args) {
+					encoder.writeStr4(arg.caption);
+					encoder.write4(arg.kind);
+					encoder.writeStr4(arg.default);
+					encoder.writeStr4(arg.options);
+				}
+				for (let k = act.args.length; k < 8; k++) {
+					encoder.writeStr4(STR_EMPTY);
+					encoder.write4(0);
+					encoder.writeStr4(STR_EMPTY);
+					encoder.writeStr4(STR_EMPTY);
+				}
+	
+				const execType = act.execType;
+				const execInfo = act.execInfo;
+				encoder.write4(execType);
+				encoder.writeStr4(execType === ACT_EXEC_TYPES.FUNCTION ? execInfo : STR_EMPTY);
+				encoder.writeStr4(execType === ACT_EXEC_TYPES.CODE ? execInfo : STR_EMPTY);
+			}
+
+			callback(encoder.data.slice(0, encoder.i));
+		};
 	},
 
 	saveLGLIcons(lib, callback, columns = 0) {
@@ -8050,7 +8090,14 @@ var Library = {
 			img.crossOrigin = "Anonymous";
 			img.onload = function() {
 				ctx.drawImage(img, 0, 0, 24, 24, 24 * (j % columns), 24 * ((j / columns)|0), 24, 24);
-				if (++l === actnum) canvas.toBlob(callback, "image/png");
+				if (++l === actnum) {
+					if (canvas.msToBlob) {
+						const blob = canvas.msToBlob("image/png");
+						callback(blob);
+					} else {
+						canvas.toBlob(callback, "image/png");
+					}
+				}
 			};
 			img.src = act.image;
 		}
@@ -8465,22 +8512,26 @@ var Application = {render: function(){var _vm=this;var _h=_vm.$createElement;var
 
 			const callback = (data) => {
 				const file = new Blob([data], {type: "octet/stream"});
-				const a = document.createElement("a"),
-					url = URL.createObjectURL(file);
-				a.href = url;
-				a.download = this.library.caption + '.' + this.saveFormat;
-				document.body.appendChild(a);
-				a.click();
-				setTimeout(function() {
-					document.body.removeChild(a);
-					window.URL.revokeObjectURL(url);
-				}, 0);
+				const fileName = this.library.caption + '.' + this.saveFormat;
+				if (window.navigator && window.navigator.msSaveBlob) {
+					window.navigator.msSaveBlob(file, fileName);
+				} else {
+					const a = document.createElement("a"),
+						url = URL.createObjectURL(file);
+					a.href = url;
+					a.download = fileName;
+					document.body.appendChild(a);
+					a.click();
+					setTimeout(function() {
+						document.body.removeChild(a);
+						window.URL.revokeObjectURL(url);
+					}, 0);
+				}
 			};
 			if (this.saveFormat === LIB_FORMATS.LGL) {
 				Library.serializeLGL(this.library, callback);
 			} else if (this.saveFormat === LIB_FORMATS.LIB) {
-				const data = Library.serializeLIB(this.library, this.saveVersion);
-				callback(data);
+				Library.serializeLIB(this.library, callback, this.saveVersion);
 			}
 		},
 
