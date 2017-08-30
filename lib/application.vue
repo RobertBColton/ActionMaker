@@ -135,22 +135,26 @@ export default {
 
 			const callback = (data) => {
 				const file = new Blob([data], {type: "octet/stream"});
-				const a = document.createElement("a"),
-					url = URL.createObjectURL(file);
-				a.href = url;
-				a.download = this.library.caption + '.' + this.saveFormat;
-				document.body.appendChild(a);
-				a.click();
-				setTimeout(function() {
-					document.body.removeChild(a);
-					window.URL.revokeObjectURL(url);
-				}, 0);
+				const fileName = this.library.caption + '.' + this.saveFormat;
+				if (window.navigator && window.navigator.msSaveBlob) {
+					window.navigator.msSaveBlob(file, fileName);
+				} else {
+					const a = document.createElement("a"),
+						url = URL.createObjectURL(file);
+					a.href = url;
+					a.download = fileName;
+					document.body.appendChild(a);
+					a.click();
+					setTimeout(function() {
+						document.body.removeChild(a);
+						window.URL.revokeObjectURL(url);
+					}, 0);
+				}
 			};
 			if (this.saveFormat === LIB_FORMATS.LGL) {
 				Library.serializeLGL(this.library, callback);
 			} else if (this.saveFormat === LIB_FORMATS.LIB) {
-				const data = Library.serializeLIB(this.library, this.saveVersion);
-				callback(data);
+				Library.serializeLIB(this.library, callback, this.saveVersion);
 			}
 		},
 
