@@ -8,3 +8,5 @@ The project is built as an HTML5 application using [Vue.js](https://github.com/v
 
 # License
 This project is licensed under the [GPL](LICENSE.txt) License.
+
+![ActionMaker Screenshot](https://sites.psu.edu/robertbcolton/files/2014/10/actionmaker-268zhr1.png)
